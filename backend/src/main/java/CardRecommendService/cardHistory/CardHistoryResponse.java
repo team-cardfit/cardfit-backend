@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 public record CardHistoryResponse(
         String cardName,
-        String cardCrop,
+        String cardCorp,
         String storeName,
         int amount,
         LocalDateTime paymentDatetime,

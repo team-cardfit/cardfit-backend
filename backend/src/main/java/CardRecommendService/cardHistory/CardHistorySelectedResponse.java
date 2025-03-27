@@ -2,7 +2,7 @@ package CardRecommendService.cardHistory;
 
 import java.util.List;
 
-public record FindAllResponse(List<CardHistoryResponse> cardHistoryResponseList,
+public record CardHistorySelectedResponse(List<CardHistoryResponse> cardHistoryResponseList,
                               Integer totalCost,
                               Paging page) {
 }

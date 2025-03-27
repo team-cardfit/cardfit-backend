@@ -41,11 +41,11 @@ public class CardHistoryService {
     }
 
     //특정 사용자의 선택한 카드들의 기간별 사용 내역을 조회
-    public FindAllResponse getSelected(String uuid, List<Long> memberCardIds, Integer monthOffset, Pageable pageable) {
-        Page<CardHistory> selectedMemberCards = cardHistoryQueryRepository.findSelectedByMemberIdAndPeriod(uuid, memberCardIds, monthOffset, pageable);
+    public CardHistorySelectedResponse getSelected(CardHistorySelectedRequest selectedRequest, Integer monthOffset, Pageable pageable) {
+        Page<CardHistory> selectedMemberCards = cardHistoryQueryRepository.findSelectedByMemberIdAndPeriod(selectedRequest.uuid(), selectedRequest.memberCardId(), monthOffset, pageable);
 
         Integer memberCardsTotalCost
-                = cardHistoryQueryRepository.getMemberCardsTotalAmount(uuid, memberCardIds, monthOffset);
+                = cardHistoryQueryRepository.getMemberCardsTotalAmount(selectedRequest.uuid(), selectedRequest.memberCardId(), monthOffset);
 
         List<CardHistoryResponse> cardHistoryResponses = selectedMemberCards.getContent()
                 .stream()
@@ -65,7 +65,7 @@ public class CardHistoryService {
                 selectedMemberCards.getTotalPages(),
                 selectedMemberCards.getTotalElements());
 
-        return new FindAllResponse(cardHistoryResponses, memberCardsTotalCost, page);
+        return new CardHistorySelectedResponse(cardHistoryResponses, memberCardsTotalCost, page);
     }
 
 
