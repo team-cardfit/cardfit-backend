@@ -11,11 +11,10 @@ import java.util.List;
 
 public interface CardHistoryRepository extends JpaRepository<CardHistory, Long> {
 
-    Page<CardHistory> findByMemberCardInAndPaymentDatetimeBetween(
+    List<CardHistory> findByMemberCardInAndPaymentDatetimeBetween(
             List<MemberCard> memberCards,
             LocalDateTime startOfMonthTime,
-            LocalDateTime endOfMonthTime,
-            Pageable pageable
+            LocalDateTime endOfMonthTime
     );
 
     Page<CardHistory> findByClassificationIdIn(List<Long> classificationIds, Pageable pageable);

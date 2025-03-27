@@ -52,7 +52,11 @@ public class CardHistoryQueryRepository {
     //기간 조건 설정하기
     private BooleanExpression queryConditions(Integer monthOffset) {
 
-        if(monthOffset == null || monthOffset > 3){
+        if(monthOffset == null){
+            monthOffset = 1;
+        }
+
+        if(monthOffset > 3){
             throw new IllegalArgumentException("조회는 최장 3개월 전까지 가능합니다");
         }
 
