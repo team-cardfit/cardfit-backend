@@ -2,15 +2,12 @@ package CardRecommendService.memberCard;
 
 
 import CardRecommendService.card.CardBasicInfoResponse;
-import CardRecommendService.loginUtils.CurrentUserId;
+import CardRecommendService.cardHistory.CardHistorySelectedRequest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class MemberCardController {
@@ -22,15 +19,16 @@ public class MemberCardController {
         this.memberCardService = memberCardService;
     }
 
+    // 02. 내 카드 불러오기
     // uuid에 해당하는 사용자의 모든 카드 목록 조회
-    @GetMapping("/membercard/{uuid}")
-    public List<CardBasicInfoResponse> getAllMemberCardBasicInfo(@CurrentUserId String uuid) {
+    @GetMapping("/membercards/{uuid}")
+    public List<CardBasicInfoResponse> getAllMemberCardBasicInfo(@PathVariable String uuid) {
 
         return memberCardService.getAllMemberCardBasicInfoByUserId(uuid); // 카드 목록을 리스트로 반환
     }
 
-    // 카드 선택 API (Controller)
-    @PostMapping("/api/cards/select")
+    // 03. 분석카드 목록
+    @PostMapping("/membercards/select")
     public List<CardBasicInfoResponse> selectCardsByIds(@RequestBody List<Long> memberCardIds) {
         // MemberCardService에서 선택된 카드들 반환
         return memberCardService.selectCardsByIds(memberCardIds);
