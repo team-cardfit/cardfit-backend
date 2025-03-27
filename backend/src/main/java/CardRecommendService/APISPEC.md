@@ -167,7 +167,7 @@
       }
   }
 
-```
+  ```
 
 - **`/cardhistory/{cardHistoryId}/classification/{classificationId}`**
   - **HTTP 메서드**: `PATCH`
@@ -229,6 +229,7 @@
 ### **MemberCardController API 스펙**
 
 - **`/membercards/{uuid}`**
+  - http://localhost:8080/membercard/1
   - **HTTP 메서드**: `GET`
   - **요청 파라미터**: `uuid`: 사용자 UUID (`String`)
   - **응답**: 카드 목록 (`List<CardBasicInfoResponse>`)
@@ -246,6 +247,7 @@
     ```
 
 - **`/membercards/select`**
+  - 
   - **HTTP 메서드**: `POST`
   - **요청 파라미터**: `memberCardIds`: 선택된 카드 ID 목록 (`List<Long>`)
   - **응답**: 선택된 카드 목록 (`List<CardBasicInfoResponse>`)
