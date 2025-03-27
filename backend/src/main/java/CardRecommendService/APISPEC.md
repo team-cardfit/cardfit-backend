@@ -229,7 +229,7 @@
 ### **MemberCardController API 스펙**
 
 - **`/membercards/{uuid}`**
-  - http://localhost:8080/membercard/1
+  - http://localhost:8080/membercards/1
   - **HTTP 메서드**: `GET`
   - **요청 파라미터**: `uuid`: 사용자 UUID (`String`)
   - **응답**: 카드 목록 (`List<CardBasicInfoResponse>`)
