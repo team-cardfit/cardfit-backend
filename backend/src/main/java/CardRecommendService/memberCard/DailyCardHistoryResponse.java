@@ -8,6 +8,6 @@ import java.util.List;
 public record DailyCardHistoryResponse(
         LocalDate date,
         List<CardHistoryResponse> paymentHistories,
-        int totalAmount
+        int dailyAmount
 ) {
 }

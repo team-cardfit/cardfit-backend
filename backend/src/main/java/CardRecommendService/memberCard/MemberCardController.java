@@ -37,19 +37,19 @@ public class MemberCardController {
 
     }
 
-    //TODO PostMapping으로 바꾸기
-    // 멤버 카드와 결제 내역을 조회, 결제 내역을 월 단위로 필터링
-    @GetMapping("/membercard/cards/history")
+    // 05. n월 내역
+    // 멤버 카드와 n월 결제 내역을 조회, 일 단위로 묶어서 보여줌
+    @PostMapping("/membercards/daily")
     public DailyCardHistoryPageResponse getCardsHistories(
-            @RequestParam List<Long> memberCardIds,
-            @RequestParam int month,
+            @RequestBody CardHistorySelectedRequest selectedRequest,
+            @RequestParam (required = false, defaultValue = "1") int monthOffset,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "13") int size) {
-        Month convertedMonth = Month.of(month); // int를 Month로 변환
+//        Month convertedMonth = Month.of(month); // int를 Month로 변환
 
-        Pageable pageable = PageRequest.of(page - 1, size);
+//        Pageable pageable = PageRequest.of(page - 1, size);
 
-        return memberCardService.getCardsHistories(memberCardIds, convertedMonth, pageable);
+        return memberCardService.getCardsHistories(selectedRequest, monthOffset, page, size);
     }
 
 }
