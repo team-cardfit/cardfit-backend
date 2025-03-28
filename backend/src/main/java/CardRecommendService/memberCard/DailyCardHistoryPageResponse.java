@@ -7,10 +7,10 @@ import java.util.List;
 
 public record DailyCardHistoryPageResponse(List<DailyCardHistoryResponse> cardHistoryResponses,
                                            Integer totalCost,
-                                           int totalGroup,
-                                           int startPage,
-                                           int totalPage,
+                                           int page,
+                                           int totalPages,
                                            int size,
-                                           int totalCount) {
+                                           int totalCount
+                                           ) {
 
 }

@@ -60,7 +60,7 @@ public class CardHistoryService {
                 )).toList();
 
         Paging page = new Paging(
-                selectedMemberCards.getNumber(),
+                selectedMemberCards.getNumber() + 1,
                 selectedMemberCards.getSize(),
                 selectedMemberCards.getTotalPages(),
                 selectedMemberCards.getTotalElements());

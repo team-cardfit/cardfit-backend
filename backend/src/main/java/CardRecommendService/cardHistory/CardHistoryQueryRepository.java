@@ -48,6 +48,25 @@ public class CardHistoryQueryRepository {
         return new PageImpl<>(content, pageable, safePageCount);
     }
 
+    public List<CardHistory> oderByPaymentDateTimeAndPaging(List<Long>memberCardId, Integer monthOffset, int page, int size){
+        return queryFactory
+                .selectFrom(qCardHistory)
+                .where(qCardHistory.memberCard.id.in(memberCardId).
+                        and(queryConditions(monthOffset)))
+                .orderBy(qCardHistory.paymentDatetime.asc())
+                .offset((page - 1) * size)
+                .limit(size)
+                .fetch();
+    }
+
+    public int getTotalCount(List<Long>memberCardId, Integer monthOffset){
+        return queryFactory
+                .selectFrom(qCardHistory)
+                .where(qCardHistory.memberCard.id.in(memberCardId).and(queryConditions(monthOffset)))
+                .fetch()
+                .size();
+    }
+
 
     //기간 조건 설정하기
     private BooleanExpression queryConditions(Integer monthOffset) {
@@ -81,5 +100,7 @@ public class CardHistoryQueryRepository {
                 .fetchOne();
         return (totalAmount != null) ? totalAmount : 0;
     }
+
+
 
 }
