@@ -52,8 +52,8 @@ public class MemberCardService {
                 .map(memberCard -> new CardBasicInfoResponse(
                         memberCard.getId(),
                         memberCard.getCard().getCardName(),
-                        memberCard.getCard().getImgUrl(),
                         memberCard.getCard().getCardCorp(),
+                        memberCard.getCard().getImgUrl(),
                         memberCard.getId(),
                         memberCard.getCard().getAltTxt() // 선택된 카드들 반환
                 ))
@@ -61,12 +61,12 @@ public class MemberCardService {
     }
 
     // 멤버 카드와 결제 내역을 조회, 결제 내역을 월 단위로 필터링
-    public DailyCardHistoryPageResponse getCardsHistories(CardHistorySelectedRequest selectedRequest, Integer monthOffset, int page, int size) {
+    public DailyCardHistoryPageResponse getCardsHistories(List<Long> memberCardsId, Integer monthOffset, int page, int size) {
 
         List<CardHistory> cardHistories = cardHistoryQueryRepository.oderByPaymentDateTimeAndPaging(
-                selectedRequest.memberCardId(), monthOffset, page, size);
+                memberCardsId, monthOffset, page, size);
 
-        int totalCount = cardHistoryQueryRepository.getTotalCount(selectedRequest.memberCardId(), monthOffset);
+        int totalCount = cardHistoryQueryRepository.getTotalCount(memberCardsId, monthOffset);
 
         //CardHistory -> CardHistoryResponse 변환
         List<CardHistoryResponse> responses = cardHistories.stream()
@@ -98,7 +98,7 @@ public class MemberCardService {
                 ))
                 .toList();
 
-        Integer totalCost = cardHistoryQueryRepository.getMemberCardsTotalAmount(selectedRequest.uuid(), selectedRequest.memberCardId(), monthOffset);
+        Integer totalCost = cardHistoryQueryRepository.getMemberCardsTotalAmount(memberCardsId, monthOffset);
         int totalPages = (totalCount + size - 1) / size;
 
         return new DailyCardHistoryPageResponse(dailyCardHistoryResponses,

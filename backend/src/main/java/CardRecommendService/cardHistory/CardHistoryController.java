@@ -25,15 +25,19 @@ public class CardHistoryController {
     }
 
     //특정 사용자의 선택한 카드들의 기간별 사용 내역을 조회
-    @PostMapping("/cardhistories/selected")
-    public CardHistorySelectedResponse getSelectedMemberCards(@RequestBody CardHistorySelectedRequest selectedRequest,
+    @GetMapping("/membercards/histories/selected")
+    public CardHistorySelectedResponse getSelectedMemberCards(@RequestParam String selectedCardIds,
                                                   @RequestParam(required = false, defaultValue = "1") Integer monthOffset,
                                                   @RequestParam(defaultValue = "1") int page,
                                                   @RequestParam(defaultValue = "13") int size) {
 
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        return cardHistoryService.getSelected(selectedRequest, monthOffset, pageable);
+        List<Long> ids = Arrays.stream(selectedCardIds.split(","))
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+
+        return cardHistoryService.getSelected(ids, monthOffset, pageable);
     }
 
 

@@ -26,11 +26,11 @@ public class CardHistoryQueryRepository {
 
 
 
-    public Page<CardHistory> findSelectedByMemberIdAndPeriod(String uuid, List<Long> memberCardIds, Integer monthOffset, Pageable pageable) {
+    public Page<CardHistory> findSelectedByMemberIdAndPeriod(List<Long> memberCardIds, Integer monthOffset, Pageable pageable) {
 
         List<CardHistory> content = queryFactory
                 .selectFrom(qCardHistory)
-                .where(qCardHistory.uuid.eq(uuid), qCardHistory.memberCard.id.in(memberCardIds), queryConditions(monthOffset))
+                .where(qCardHistory.memberCard.id.in(memberCardIds), queryConditions(monthOffset))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(qCardHistory.paymentDatetime.asc())
@@ -38,7 +38,7 @@ public class CardHistoryQueryRepository {
 
         Long pageCount = queryFactory
                 .select(qCardHistory.count())
-                .where(qCardHistory.uuid.eq(uuid), qCardHistory.memberCard.id.in(memberCardIds), queryConditions(monthOffset))
+                .where(qCardHistory.memberCard.id.in(memberCardIds), queryConditions(monthOffset))
                 .from(qCardHistory)
                 .fetchOne();
 
@@ -90,13 +90,13 @@ public class CardHistoryQueryRepository {
 
 
 
-    public int getMemberCardsTotalAmount(String uuid, List<Long> memberCardIds, Integer monthOffset) {
+    public int getMemberCardsTotalAmount(List<Long> memberCardIds, Integer monthOffset) {
         QCardHistory qCardHistory = QCardHistory.cardHistory;
 
         Integer totalAmount = queryFactory
                 .select(qCardHistory.amount.sum())
                 .from(qCardHistory)
-                .where(qCardHistory.uuid.eq(uuid), qCardHistory.memberCard.id.in(memberCardIds), queryConditions(monthOffset))
+                .where(qCardHistory.memberCard.id.in(memberCardIds), queryConditions(monthOffset))
                 .fetchOne();
         return (totalAmount != null) ? totalAmount : 0;
     }
