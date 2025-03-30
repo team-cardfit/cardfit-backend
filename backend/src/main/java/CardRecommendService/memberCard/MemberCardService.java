@@ -52,8 +52,8 @@ public class MemberCardService {
                 .map(memberCard -> new CardBasicInfoResponse(
                         memberCard.getId(),
                         memberCard.getCard().getCardName(),
-                        memberCard.getCard().getImgUrl(),
                         memberCard.getCard().getCardCorp(),
+                        memberCard.getCard().getImgUrl(),
                         memberCard.getId(),
                         memberCard.getCard().getAltTxt() // 선택된 카드들 반환
                 ))
