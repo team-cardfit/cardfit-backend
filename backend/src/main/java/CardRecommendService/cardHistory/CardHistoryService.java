@@ -18,7 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,11 +42,11 @@ public class CardHistoryService {
     }
 
     //특정 사용자의 선택한 카드들의 기간별 사용 내역을 조회
-    public CardHistorySelectedResponse getSelected(CardHistorySelectedRequest selectedRequest, Integer monthOffset, Pageable pageable) {
-        Page<CardHistory> selectedMemberCards = cardHistoryQueryRepository.findSelectedByMemberIdAndPeriod(selectedRequest.uuid(), selectedRequest.memberCardId(), monthOffset, pageable);
+    public CardHistorySelectedResponse getSelected(List<Long>selectedCardIds, Integer monthOffset, Pageable pageable) {
+        Page<CardHistory> selectedMemberCards = cardHistoryQueryRepository.findSelectedByMemberIdAndPeriod(selectedCardIds, monthOffset, pageable);
 
         Integer memberCardsTotalCost
-                = cardHistoryQueryRepository.getMemberCardsTotalAmount(selectedRequest.uuid(), selectedRequest.memberCardId(), monthOffset);
+                = cardHistoryQueryRepository.getMemberCardsTotalAmount(selectedCardIds, monthOffset);
 
         List<CardHistoryResponse> cardHistoryResponses = selectedMemberCards.getContent()
                 .stream()
@@ -59,13 +60,18 @@ public class CardHistoryService {
                         selectedMemberCard.getClassification() != null ? selectedMemberCard.getClassification().getTitle() : "-" // 🔥 `String` 변환
                 )).toList();
 
+        YearMonth targetMonth = YearMonth.from(LocalDate.now()).minusMonths(monthOffset);
+
+        LocalDate startDate = targetMonth.atDay(1);
+        LocalDate endDate = targetMonth.atEndOfMonth();
+
         Paging page = new Paging(
                 selectedMemberCards.getNumber() + 1,
                 selectedMemberCards.getSize(),
                 selectedMemberCards.getTotalPages(),
                 selectedMemberCards.getTotalElements());
 
-        return new CardHistorySelectedResponse(cardHistoryResponses, memberCardsTotalCost, page);
+        return new CardHistorySelectedResponse(cardHistoryResponses, startDate, endDate, memberCardsTotalCost, page);
     }
 
 

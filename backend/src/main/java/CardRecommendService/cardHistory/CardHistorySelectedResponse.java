@@ -1,8 +1,12 @@
 package CardRecommendService.cardHistory;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record CardHistorySelectedResponse(List<CardHistoryResponse> cardHistoryResponseList,
-                              Integer totalCost,
-                              Paging page) {
+                                          LocalDate startDate,
+                                          LocalDate endDate,
+                                          Integer totalCost,
+                                          Paging page) {
 }
