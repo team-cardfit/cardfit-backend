@@ -7,7 +7,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class MemberCardController {
@@ -27,19 +29,23 @@ public class MemberCardController {
         return memberCardService.getAllMemberCardBasicInfoByUserId(uuid); // 카드 목록을 리스트로 반환
     }
 
-    // 03. 분석카드 목록
-    @PostMapping("/membercards/select")
-    public List<CardBasicInfoResponse> selectCardsByIds(@RequestBody List<Long> memberCardIds) {
+    // 03. 소비패턴분석카드
+    @GetMapping("/membercards")
+    public List<CardBasicInfoResponse> selectCardsByIds(@RequestParam String memberCardIds) {
+        List<Long> ids = Arrays.stream(memberCardIds.split(","))
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+
         // MemberCardService에서 선택된 카드들 반환
-        return memberCardService.selectCardsByIds(memberCardIds);
+        return memberCardService.selectCardsByIds(ids);
 
     }
 
     // 05. n월 내역
     // 멤버 카드와 n월 결제 내역을 조회, 일 단위로 묶어서 보여줌
-    @PostMapping("/membercards/daily")
+    @GetMapping("/membercards/daily")
     public DailyCardHistoryPageResponse getCardsHistories(
-            @RequestBody CardHistorySelectedRequest selectedRequest,
+            @RequestParam List<Long> memberCardIds,
             @RequestParam (required = false, defaultValue = "1") int monthOffset,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "13") int size) {
@@ -47,7 +53,7 @@ public class MemberCardController {
 
 //        Pageable pageable = PageRequest.of(page - 1, size);
 
-        return memberCardService.getCardsHistories(selectedRequest, monthOffset, page, size);
+        return memberCardService.getCardsHistories(memberCardIds, monthOffset, page, size);
     }
 
 }

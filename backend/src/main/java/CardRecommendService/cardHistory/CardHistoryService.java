@@ -121,7 +121,7 @@ public class CardHistoryService {
             String uuid, List<Long> memberCardIds, Integer monthOffset, List<Long> classificationIds, Pageable pageable) {
 
         // 1. 총 결제 금액을 `getMemberCardsTotalAmount`로 구하기
-        Integer totalAmount = cardHistoryQueryRepository.getMemberCardsTotalAmount(uuid, memberCardIds, monthOffset);
+        Integer totalAmount = cardHistoryQueryRepository.getMemberCardsTotalAmount(memberCardIds, monthOffset);
 
         // 2. classificationIds에 해당하는 CardHistory 목록을 조회
         Page<CardHistory> cardHistories = cardHistoryRepository.findByClassificationIdIn(classificationIds, pageable);
