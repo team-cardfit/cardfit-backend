@@ -18,15 +18,11 @@ import java.util.*;
 public class CardHistoryService {
 
     private final CardHistoryRepository cardHistoryRepository;
-    private final MemberCardRepository memberCardRepository;
-
     private final CardHistoryQueryRepository cardHistoryQueryRepository;
-
     private final ClassificationRepository classificationRepository;
 
-    public CardHistoryService(CardHistoryRepository cardHistoryRepository, MemberCardRepository memberCardRepository, CardHistoryQueryRepository cardHistoryQueryRepository, ClassificationRepository classificationRepository) {
+    public CardHistoryService(CardHistoryRepository cardHistoryRepository, CardHistoryQueryRepository cardHistoryQueryRepository, ClassificationRepository classificationRepository) {
         this.cardHistoryRepository = cardHistoryRepository;
-        this.memberCardRepository = memberCardRepository;
         this.cardHistoryQueryRepository = cardHistoryQueryRepository;
         this.classificationRepository = classificationRepository;
     }
@@ -161,5 +157,20 @@ public class CardHistoryService {
                 classificationTotalCost,
                 percent
         );
+    }
+
+    @Transactional
+    public void updateClassificationForSelectedCardHistories(List<Long> cardHistoryIds, Long targetClassificationId) {
+        // 대상 분류 조회
+        Classification targetClassification = classificationRepository.findById(targetClassificationId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 분류를 찾을 수 없습니다."));
+
+        // 선택된 카드히스토리들을 조회
+        List<CardHistory> cardHistories = cardHistoryRepository.findAllById(cardHistoryIds);
+
+        // 각 카드히스토리에 대해 업데이트 수행
+        for (CardHistory history : cardHistories) {
+            history.setClassification(targetClassification);
+        }
     }
 }

@@ -22,8 +22,6 @@ public class Classification {
     @OneToMany(mappedBy = "classification")
     private List<CardHistory> cardHistories;
 
-    private boolean isChecked; // 체크 여부를 나타내는 필드
-
     protected Classification() {
     }
 
@@ -53,11 +51,11 @@ public class Classification {
         return getCardHistories;
     }
 
-    public boolean isChecked() {
-        return isChecked;
-    }
-
     public Classification(String title) {
         this.title = title;
+    }
+
+    public String getUuid() {
+        return uuid;
     }
 }
