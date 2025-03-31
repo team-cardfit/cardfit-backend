@@ -60,7 +60,7 @@ public class CardHistoryController {
     }
 
 
-    @GetMapping("/membercards/histories/selected")
+    @GetMapping("/membercards/histories/classification")
     public CardHistorySelectedResponseWithPercentResponse getSelectedMemberCards(
             @RequestParam String selectedCardIds,
             @RequestParam(required = false, defaultValue = "1") Integer monthOffset,
