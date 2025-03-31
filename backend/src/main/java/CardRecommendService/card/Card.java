@@ -47,6 +47,12 @@ public class Card {
     @Enumerated(EnumType.STRING)
     private Category store3;
 
+    private String discount1;
+
+    private String discount2;
+
+    private String discount3;
+
     protected Card() {
     }
 
@@ -61,17 +67,19 @@ public class Card {
         this.cardBenefits = cardBenefits;
     }
 
-    public Card(String cardName, String cardCorp, int annualFee, Category store1, Category store2, Category store3, List<CardBenefits> cardBenefits) {
+    public Card(String cardName, String cardCorp, String imgUrl, int annualFee, Category store1, String discount1, Category store2, String discount2, Category store3, String discount3, EnumSet<Category> category) {
         this.cardName = cardName;
         this.cardCorp = cardCorp;
+        this.imgUrl = imgUrl;
         this.annualFee = annualFee;
         this.store1 = store1;
+        this.discount1 = discount1;
         this.store2 = store2;
+        this.discount2 = discount2;
         this.store3 = store3;
-        this.cardBenefits = cardBenefits;
+        this.discount3 = discount3;
+        this.category = category;
     }
-
-
 
     public Long getId() {
         return Id;
@@ -119,5 +127,17 @@ public class Card {
 
     public String getAltTxt() {
         return altTxt;
+    }
+
+    public String getDiscount1() {
+        return discount1;
+    }
+
+    public String getDiscount2() {
+        return discount2;
+    }
+
+    public String getDiscount3() {
+        return discount3;
     }
 }

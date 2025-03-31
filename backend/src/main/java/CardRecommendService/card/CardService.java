@@ -14,12 +14,10 @@ import java.util.stream.Stream;
 public class CardService {
 
     private final CardRepository cardRepository;
-    private final List<Card> allCards;
 
 
     public CardService(CardRepository cardRepository, List<Card> allCards) {
         this.cardRepository = cardRepository;
-        this.allCards = allCards;
     }
 
     //모든 카드 리스트를 목록으로 조회
@@ -31,19 +29,9 @@ public class CardService {
                 .map(card -> new CardResponse(
                         card.getCardCorp(),
                         card.getCardName(),
-                        card.getAnnualFee(),
-                        card.getCardBenefits().stream()
-                                .map(cardBenefits -> new CardBenefitsResponse(
-                                        cardBenefits.getBnfName(),
-                                        cardBenefits.getBnfDetail(),
-                                        cardBenefits.getBngDetail()
-                                ))
-                                .collect(Collectors.toList())
-
+                        card.getAnnualFee()
                 ))
                 .collect(Collectors.toList());
-
-
     }
 
 
@@ -53,37 +41,36 @@ public class CardService {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new IllegalArgumentException("없는 카드"));
 
-        // CardBenefits 객체들을 CardBenefitsResponse로 변환
-        List<CardBenefitsResponse> cardBenefitsResponses = card.getCardBenefits().stream()
-                .map(cardBenefits -> new CardBenefitsResponse(
-                        cardBenefits.getBnfName(),
-                        cardBenefits.getBnfDetail(),
-                        cardBenefits.getBngDetail()))  // CardBenefits 객체의 값을 CardBenefitsResponse 생성자에 전달
-                .collect(Collectors.toList());
-
         return new CardDetailResponse(
-                card.getCardCorp(),
                 card.getCardName(),
+                card.getCardCorp(),
+                card.getImgUrl(),
                 card.getAnnualFee(),
-                cardBenefitsResponses
+                card.getStore1(),
+                card.getDiscount1(),
+                card.getStore2(),
+                card.getDiscount2(),
+                card.getStore3(),
+                card.getDiscount3()
+
         );
     }
 
 
     //카드 추천 로직
-
-    public List<long[]> getRecommendCards(Set<Category> selectedCategories, int minAnnualFee, int maxAnnualFee) {
+    public CardRecommendResponse getRecommendCards(Set<Category> selectedCategories, int minAnnualFee, int maxAnnualFee) {
         // 연회비 필터링을 적용하여 모든 카드 조회
         List<Card> filteredCards = cardRepository.findByAnnualFeeBetween(minAnnualFee, maxAnnualFee);
 
         // 각 카드의 매칭된 카테고리 개수를 계산하여 리스트 생성
-        List<long[]> matchedCards = filteredCards.stream()
+        List<Long> matchedCards = filteredCards.stream()
                 .map(card -> new long[]{card.getId(), countMatchedCategories(card, selectedCategories)})
                 .sorted((a, b) -> Long.compare(b[1], a[1])) // 매칭된 개수 기준으로 내림차순 정렬
                 .limit(4) // 최대 4개 제한
+                .map(id -> (Long) id[0])
                 .collect(Collectors.toList());
 
-        return matchedCards;
+        return new CardRecommendResponse(matchedCards, selectedCategories);
     }
 
     // 카드의 카테고리와 선택한 카테고리 일치 개수 계산

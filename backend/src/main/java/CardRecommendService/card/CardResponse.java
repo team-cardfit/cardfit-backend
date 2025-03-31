@@ -9,8 +9,7 @@ public record CardResponse(
 
         String cardCrop,
         String cardName,
-        int annualFee,
-        List<CardBenefitsResponse> cardBenefits
+        int annualFee
 
 ) {
 }
