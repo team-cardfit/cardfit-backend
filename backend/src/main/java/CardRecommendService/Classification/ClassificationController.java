@@ -1,17 +1,12 @@
 package CardRecommendService.Classification;
 
-import CardRecommendService.cardHistory.CardHistorySelectedResponse;
 import CardRecommendService.cardHistory.CardHistoryService;
 import CardRecommendService.loginUtils.CurrentUserId;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 // ClassificationController.java
 @RestController
