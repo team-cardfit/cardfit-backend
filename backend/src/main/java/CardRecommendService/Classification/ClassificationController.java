@@ -17,12 +17,11 @@ public class ClassificationController {
         this.classificationService = classificationService;
     }
 
-    // 분류 생성 엔드포인트: 로그인한 사용자의 uuid를 함께 전달
+    // 분류 생성 엔드포인트: @ResponseStatus를 사용하여 HTTP 201(CREATED)을 반환
     @PostMapping("/classifications")
     @ResponseStatus(HttpStatus.CREATED)
-    public Map<String, Long> createClassification(
-            @RequestBody CreateClassificationRequest request,
-            @CurrentUserId String uuid) {
+    public Map<String, Long> createClassification(@RequestBody CreateClassificationRequest request,
+                                                  @CurrentUserId String uuid) {
         Long classificationId = classificationService.createClassification(request, uuid);
         return Map.of("id", classificationId);
     }

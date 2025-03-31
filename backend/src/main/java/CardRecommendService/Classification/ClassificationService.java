@@ -21,13 +21,14 @@ public class ClassificationService {
     }
 
     @Transactional
-    public Long createClassification(CreateClassificationRequest request, String userUuid) {
+    public Long createClassification(CreateClassificationRequest request, String uuid) {
         Classification classification = new Classification(
                 request.title(),
-                userUuid
+                uuid
         );
 
         classificationRepository.save(classification);
+
         return classification.getId();
     }
 
