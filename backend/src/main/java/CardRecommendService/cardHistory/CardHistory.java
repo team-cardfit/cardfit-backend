@@ -99,19 +99,15 @@ public class CardHistory {
         return memberCard;
     }
 
+    public String getUuid() {
+        return uuid;
+    }
 
     public Classification getClassification() {
         return classification;
     }
 
-
     public void setClassification(Classification classification) {
         this.classification = classification;
     }
-
-
-    public String getUuid() {
-        return uuid;
-    }
 }
-

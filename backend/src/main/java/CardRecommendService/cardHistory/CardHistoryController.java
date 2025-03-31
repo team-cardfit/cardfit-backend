@@ -1,7 +1,9 @@
 package CardRecommendService.cardHistory;
 
+import CardRecommendService.loginUtils.CurrentUserId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -72,4 +74,14 @@ public class CardHistoryController {
 
         return cardHistoryService.getSelected(ids, monthOffset, classificationId);
     }
+
+    @PatchMapping("/cardhistories/assign-default")
+    @ResponseStatus(HttpStatus.OK)
+    public String assignDefaultClassification(@CurrentUserId String uuid) {
+        cardHistoryService.assignDefaultClassification(uuid);
+        return "처리 완료";
+    }
+
+
+
 }

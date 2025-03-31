@@ -18,15 +18,11 @@ import java.util.*;
 public class CardHistoryService {
 
     private final CardHistoryRepository cardHistoryRepository;
-    private final MemberCardRepository memberCardRepository;
-
     private final CardHistoryQueryRepository cardHistoryQueryRepository;
-
     private final ClassificationRepository classificationRepository;
 
-    public CardHistoryService(CardHistoryRepository cardHistoryRepository, MemberCardRepository memberCardRepository, CardHistoryQueryRepository cardHistoryQueryRepository, ClassificationRepository classificationRepository) {
+    public CardHistoryService(CardHistoryRepository cardHistoryRepository, CardHistoryQueryRepository cardHistoryQueryRepository, ClassificationRepository classificationRepository) {
         this.cardHistoryRepository = cardHistoryRepository;
-        this.memberCardRepository = memberCardRepository;
         this.cardHistoryQueryRepository = cardHistoryQueryRepository;
         this.classificationRepository = classificationRepository;
     }
@@ -161,5 +157,32 @@ public class CardHistoryService {
                 classificationTotalCost,
                 percent
         );
+    }
+
+    @Transactional
+    public void assignDefaultClassification(String uuid) {
+        // 1. 로그인한 사용자의 기본 분류("기타")를 조회. 없으면 생성
+        Classification defaultClassification = classificationRepository
+                .findByUuidAndTitle(uuid, "기타")
+                .orElseGet(() -> {
+                    // "기본 분류"를 생성할 때, uuid를 할당하여 사용자와 연결
+                    Classification newDefault = new Classification("기타", uuid);
+                    return classificationRepository.save(newDefault);
+                });
+
+        // 2. 해당 uuid의 CardHistory 중 classification이 null인 항목 조회
+        List<CardHistory> histories = cardHistoryRepository.findByUuidAndClassificationIsNull(uuid);
+
+        if (histories.isEmpty()) {
+            // 이미 모든 기록에 분류가 채워져 있는 경우
+            System.out.println("다 채워져 있습니다.");
+            return;
+        }
+
+        // 3. null인 항목에 기본 분류("기타")를 할당
+        histories.forEach(history -> {
+            history.setClassification(defaultClassification);
+            cardHistoryRepository.save(history);
+        });
     }
 }
