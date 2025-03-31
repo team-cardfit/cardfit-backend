@@ -1,12 +1,14 @@
 package CardRecommendService.Classification;
 
 import CardRecommendService.cardHistory.CardHistoryRepository;
+import CardRecommendService.cardHistory.CardHistoryResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+// ClassificationService.java
 @Service
 public class ClassificationService {
 
@@ -18,13 +20,11 @@ public class ClassificationService {
         this.cardHistoryRepository = cardHistoryRepository;
     }
 
-
-    //분류 등록
     @Transactional
-    public Long createClassification(CreateClassificationRequest request) {
-
+    public Long createClassification(CreateClassificationRequest request, String uuid) {
         Classification classification = new Classification(
-                request.title()
+                request.title(),
+                uuid
         );
 
         classificationRepository.save(classification);
@@ -32,26 +32,17 @@ public class ClassificationService {
         return classification.getId();
     }
 
-    //분류 조회
-    public List<ClassificationResponse> getClassificationList() {
-
-        List<Classification> classifications = classificationRepository.findAll();
-
-        return classifications.stream()
-                .map(classification -> new ClassificationResponse(
-                        classification.getTitle()
-                ))
-                .collect(Collectors.toList());
-    }
-
-    //분류 제거
+    // 분류 제거
     @Transactional
     public void deleteClassification(Long classificationId) {
-
         Classification classification = classificationRepository.findById(classificationId)
                 .orElseThrow(() -> new RuntimeException("없는 분류"));
 
+        // 연결된 카드 히스토리가 있으면 삭제 불가
+        if (classification.getCardHistories() != null && !classification.getCardHistories().isEmpty()) {
+            throw new RuntimeException("결제내역이 존재하는 분류는 삭제할 수 없습니다.");
+        }
+
         classificationRepository.deleteById(classificationId);
     }
-
 }

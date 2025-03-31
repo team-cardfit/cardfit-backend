@@ -1,15 +1,9 @@
 package CardRecommendService.cardHistory;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import CardRecommendService.loginUtils.CurrentUserId;
-import CardRecommendService.memberCard.MemberCardService;
-import jakarta.transaction.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,18 +60,16 @@ public class CardHistoryController {
     }
 
 
-    @GetMapping("/cardhistories/classification")
-    public CardHistoryResultPageResponse calculatePayments(@PathVariable String uuid,
-                                                       @RequestParam List<Long> memberCardIds,
-                                                       @RequestParam(required = false) Integer monthOffset,
-                                                       @RequestParam List<Long> classificationIds,
-                                                       @RequestParam (defaultValue = "1") int page,
-                                                       @RequestParam (defaultValue = "13") int size) {
+    @GetMapping("/membercards/histories/selected")
+    public CardHistorySelectedResponseWithPercentResponse getSelectedMemberCards(
+            @RequestParam String selectedCardIds,
+            @RequestParam(required = false, defaultValue = "1") Integer monthOffset,
+            @RequestParam Long classificationId) {
 
-        Pageable pageable = PageRequest.of(page -1, size);
+        List<Long> ids = Arrays.stream(selectedCardIds.split(","))
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
 
-        return cardHistoryService.calculateClassificationPayments(uuid, memberCardIds, monthOffset, classificationIds, pageable);
+        return cardHistoryService.getSelected(ids, monthOffset, classificationId);
     }
-
-
 }
