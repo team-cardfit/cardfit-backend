@@ -12,6 +12,8 @@ public class Classification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String uuid;
+
     private String title;
 
     @ManyToOne
@@ -25,12 +27,10 @@ public class Classification {
     protected Classification() {
     }
 
-    public Classification(Long id, String title, CardHistory getCardHistories, List<CardHistory> cardHistories, boolean isChecked) {
-        this.id = id;
+    // Classification.java
+    public Classification(String title, String uuid) {
         this.title = title;
-        this.getCardHistories = getCardHistories;
-        this.cardHistories = cardHistories;
-        this.isChecked = isChecked;
+        this.uuid = uuid;
     }
 
     public List<CardHistory> getCardHistories() {
@@ -60,9 +60,4 @@ public class Classification {
     public Classification(String title) {
         this.title = title;
     }
-
-    public void setChecked(boolean checked) {
-        isChecked = checked;
-    }
-
 }
