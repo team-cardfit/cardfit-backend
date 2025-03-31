@@ -104,7 +104,7 @@ public class CardHistoryQueryRepository {
             Long classificationId) {
 
         BooleanExpression periodCondition = queryConditions(monthOffset);
-        BooleanExpression classificationCondition = qCardHistory.classification.id.eq(classificationId);
+        BooleanExpression classificationCondition = classificationEq(classificationId);
 
         List<CardHistory> content = queryFactory
                 .selectFrom(qCardHistory)
@@ -122,7 +122,7 @@ public class CardHistoryQueryRepository {
             Integer monthOffset,
             Long classificationId) {
         BooleanExpression periodCondition = queryConditions(monthOffset);
-        BooleanExpression classificationCondition = qCardHistory.classification.id.eq(classificationId);
+        BooleanExpression classificationCondition = classificationEq(classificationId);
 
         Integer totalAmount = queryFactory
                 .select(qCardHistory.amount.sum())
@@ -133,5 +133,13 @@ public class CardHistoryQueryRepository {
                 .fetchOne();
 
         return (totalAmount != null) ? totalAmount : 0;
+    }
+
+    // 분류 조건이 null일 경우 조건을 무시하도록 하는 헬퍼 메서드
+    private BooleanExpression classificationEq(Long classificationId) {
+        if (classificationId == null) {
+            return null;
+        }
+        return qCardHistory.classification.id.eq(classificationId);
     }
 }

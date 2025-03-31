@@ -160,29 +160,17 @@ public class CardHistoryService {
     }
 
     @Transactional
-    public void assignDefaultClassification(String uuid) {
-        // 1. 로그인한 사용자의 기본 분류("기타")를 조회. 없으면 생성
-        Classification defaultClassification = classificationRepository
-                .findByUuidAndTitle(uuid, "기타")
-                .orElseGet(() -> {
-                    // "기본 분류"를 생성할 때, uuid를 할당하여 사용자와 연결
-                    Classification newDefault = new Classification("기타", uuid);
-                    return classificationRepository.save(newDefault);
-                });
+    public void updateClassificationForSelectedCardHistories(List<Long> cardHistoryIds, Long targetClassificationId) {
+        // 대상 분류 조회
+        Classification targetClassification = classificationRepository.findById(targetClassificationId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 분류를 찾을 수 없습니다."));
 
-        // 2. 해당 uuid의 CardHistory 중 classification이 null인 항목 조회
-        List<CardHistory> histories = cardHistoryRepository.findByUuidAndClassificationIsNull(uuid);
+        // 선택된 카드히스토리들을 조회
+        List<CardHistory> cardHistories = cardHistoryRepository.findAllById(cardHistoryIds);
 
-        if (histories.isEmpty()) {
-            // 이미 모든 기록에 분류가 채워져 있는 경우
-            System.out.println("다 채워져 있습니다.");
-            return;
+        // 각 카드히스토리에 대해 업데이트 수행
+        for (CardHistory history : cardHistories) {
+            history.setClassification(targetClassification);
         }
-
-        // 3. null인 항목에 기본 분류("기타")를 할당
-        histories.forEach(history -> {
-            history.setClassification(defaultClassification);
-            cardHistoryRepository.save(history);
-        });
     }
 }

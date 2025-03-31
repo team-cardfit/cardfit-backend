@@ -66,7 +66,7 @@ public class CardHistoryController {
     public CardHistorySelectedResponseWithPercentResponse getSelectedMemberCards(
             @RequestParam String selectedCardIds,
             @RequestParam(required = false, defaultValue = "1") Integer monthOffset,
-            @RequestParam Long classificationId) {
+            @RequestParam(required = false) Long classificationId) {
 
         List<Long> ids = Arrays.stream(selectedCardIds.split(","))
                 .map(Long::parseLong)
@@ -75,13 +75,20 @@ public class CardHistoryController {
         return cardHistoryService.getSelected(ids, monthOffset, classificationId);
     }
 
-    @PatchMapping("/cardhistories/assign-default")
+    // 카드히스토리 ID 목록은 쿼리 파라미터로, 분류 ID는 요청 본문(UpdateClassificationRequest)으로 받는 예시
+    @PatchMapping("/cardhistories/changeclassification")
     @ResponseStatus(HttpStatus.OK)
-    public String assignDefaultClassification(@CurrentUserId String uuid) {
-        cardHistoryService.assignDefaultClassification(uuid);
-        return "처리 완료";
+    public String updateSelectedCardHistoriesClassification(
+            @RequestParam String cardHistoryIds, // 예: "123,456,789"
+            @RequestBody UpdateClassificationRequest request) {
+
+        // 카드히스토리 ID들을 파싱합니다.
+        List<Long> ids = Arrays.stream(cardHistoryIds.split(","))
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+
+        // 서비스 로직 호출
+        cardHistoryService.updateClassificationForSelectedCardHistories(ids, request.classificationId());
+        return "이동 완료";
     }
-
-
-
 }
