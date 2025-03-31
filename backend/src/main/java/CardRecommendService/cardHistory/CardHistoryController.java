@@ -1,15 +1,9 @@
 package CardRecommendService.cardHistory;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import CardRecommendService.loginUtils.CurrentUserId;
-import CardRecommendService.memberCard.MemberCardService;
-import jakarta.transaction.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,7 +61,7 @@ public class CardHistoryController {
 
 
     @GetMapping("/membercards/histories/selected")
-    public CardHistorySelectedResponseWithPercent getSelectedMemberCards(
+    public CardHistorySelectedResponseWithPercentResponse getSelectedMemberCards(
             @RequestParam String selectedCardIds,
             @RequestParam(required = false, defaultValue = "1") Integer monthOffset,
             @RequestParam Long classificationId) {

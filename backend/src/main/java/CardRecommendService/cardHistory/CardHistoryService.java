@@ -2,27 +2,17 @@ package CardRecommendService.cardHistory;
 
 import CardRecommendService.Classification.Classification;
 import CardRecommendService.Classification.ClassificationRepository;
-import CardRecommendService.card.Card;
-import CardRecommendService.card.CardResponse;
-import CardRecommendService.cardBenefits.CardBenefitsResponse;
-import CardRecommendService.memberCard.MemberCard;
 import CardRecommendService.memberCard.MemberCardRepository;
 
 import jakarta.transaction.Transactional;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class CardHistoryService {
@@ -122,7 +112,7 @@ public class CardHistoryService {
         return cardHistoryRepository.save(cardHistory);
     }
 
-    public CardHistorySelectedResponseWithPercent getSelected(
+    public CardHistorySelectedResponseWithPercentResponse getSelected(
             List<Long> selectedCardIds,
             Integer monthOffset,
             Long classificationId) {
@@ -164,7 +154,7 @@ public class CardHistoryService {
         LocalDate startDate = targetMonth.atDay(1);
         LocalDate endDate = targetMonth.atEndOfMonth();
 
-        return new CardHistorySelectedResponseWithPercent(
+        return new CardHistorySelectedResponseWithPercentResponse(
                 cardHistoryResponses,
                 startDate,
                 endDate,
