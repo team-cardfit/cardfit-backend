@@ -66,22 +66,16 @@ public class CardHistoryController {
     }
 
 
-// CardHistoryController.java
-
     @GetMapping("/membercards/histories/selected")
-    public CardHistorySelectedResponse getSelectedMemberCards(
+    public CardHistorySelectedResponseWithPercent getSelectedMemberCards(
             @RequestParam String selectedCardIds,
             @RequestParam(required = false, defaultValue = "1") Integer monthOffset,
-            @RequestParam Long classificationId,  // 분류 계정 id 추가
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "13") int size) {
-
-        Pageable pageable = PageRequest.of(page - 1, size);
+            @RequestParam Long classificationId) {
 
         List<Long> ids = Arrays.stream(selectedCardIds.split(","))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
 
-        return cardHistoryService.getSelected(ids, monthOffset, classificationId, pageable);
+        return cardHistoryService.getSelected(ids, monthOffset, classificationId);
     }
 }

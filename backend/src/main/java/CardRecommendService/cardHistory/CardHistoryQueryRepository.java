@@ -98,15 +98,12 @@ public class CardHistoryQueryRepository {
         return (totalAmount != null) ? totalAmount : 0;
     }
 
-    public Page<CardHistory> findSelectedByMemberIdAndPeriodAndClassification(
+    public List<CardHistory> findSelectedByMemberIdAndPeriodAndClassification(
             List<Long> memberCardIds,
             Integer monthOffset,
-            Long classificationId,
-            Pageable pageable) {
+            Long classificationId) {
 
-        // 기간 조건은 기존과 동일하게 적용합니다.
         BooleanExpression periodCondition = queryConditions(monthOffset);
-        // 분류 조건: classification이 null이 아닌 경우에만 필터링합니다.
         BooleanExpression classificationCondition = qCardHistory.classification.id.eq(classificationId);
 
         List<CardHistory> content = queryFactory
@@ -114,20 +111,10 @@ public class CardHistoryQueryRepository {
                 .where(qCardHistory.memberCard.id.in(memberCardIds)
                         .and(periodCondition)
                         .and(classificationCondition))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
                 .orderBy(qCardHistory.paymentDatetime.asc())
                 .fetch();
 
-        Long total = queryFactory
-                .select(qCardHistory.count())
-                .from(qCardHistory)
-                .where(qCardHistory.memberCard.id.in(memberCardIds)
-                        .and(periodCondition)
-                        .and(classificationCondition))
-                .fetchOne();
-
-        return new PageImpl<>(content, pageable, total != null ? total : 0);
+        return content;
     }
 
     public Integer getMemberCardsTotalAmountByClassification(

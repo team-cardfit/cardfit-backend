@@ -65,11 +65,11 @@ public class CardHistoryService {
         LocalDate startDate = targetMonth.atDay(1);
         LocalDate endDate = targetMonth.atEndOfMonth();
 
-        Paging page = new Paging(
-                selectedMemberCards.getNumber() + 1,
-                selectedMemberCards.getSize(),
-                selectedMemberCards.getTotalPages(),
-                selectedMemberCards.getTotalElements());
+            Paging page = new Paging(
+                    selectedMemberCards.getNumber() + 1,
+                    selectedMemberCards.getSize(),
+                    selectedMemberCards.getTotalPages(),
+                    selectedMemberCards.getTotalElements());
 
         return new CardHistorySelectedResponse(cardHistoryResponses, startDate, endDate, memberCardsTotalCost, page);
     }
@@ -122,27 +122,32 @@ public class CardHistoryService {
         return cardHistoryRepository.save(cardHistory);
     }
 
-    // CardHistoryService.java
-
-    public CardHistorySelectedResponse getSelected(
+    public CardHistorySelectedResponseWithPercent getSelected(
             List<Long> selectedCardIds,
             Integer monthOffset,
-            Long classificationId, // 추가된 파라미터
-            Pageable pageable) {
+            Long classificationId) {
 
-        // 분류 조건을 포함한 결제 기록 조회
-        Page<CardHistory> selectedMemberCards =
+        // 분류 조건을 포함한 결제 기록 조회 (페이징 없이 전체 결과)
+        List<CardHistory> selectedMemberCards =
                 cardHistoryQueryRepository.findSelectedByMemberIdAndPeriodAndClassification(
-                        selectedCardIds, monthOffset, classificationId, pageable);
+                        selectedCardIds, monthOffset, classificationId);
 
-        // 분류 조건을 포함한 총 결제 금액 합계 조회
-        Integer memberCardsTotalCost =
+        // 해당 분류에 해당하는 결제 금액 합계 조회
+        Integer classificationTotalCost =
                 cardHistoryQueryRepository.getMemberCardsTotalAmountByClassification(
                         selectedCardIds, monthOffset, classificationId);
 
+        // 전체 결제 금액 조회 (모든 분류의 결제 금액)
+        Integer overallTotalCost =
+                cardHistoryQueryRepository.getMemberCardsTotalAmount(selectedCardIds, monthOffset);
+
+        // 전체 금액 대비 분류 금액의 퍼센티지 계산 (소수점 포함)
+        double percent = overallTotalCost > 0
+                ? (classificationTotalCost / (double) overallTotalCost) * 100
+                : 0;
+
         // 조회된 결과를 CardHistoryResponse로 매핑
-        List<CardHistoryResponse> cardHistoryResponses = selectedMemberCards.getContent()
-                .stream()
+        List<CardHistoryResponse> cardHistoryResponses = selectedMemberCards.stream()
                 .map(selectedMemberCard -> new CardHistoryResponse(
                         selectedMemberCard.getMemberCard().getCard().getCardName(),
                         selectedMemberCard.getMemberCard().getCard().getCardCorp(),
@@ -151,7 +156,7 @@ public class CardHistoryService {
                         selectedMemberCard.getPaymentDatetime(),
                         selectedMemberCard.getCategory(),
                         selectedMemberCard.getClassification() != null
-                                ? selectedMemberCard.getClassification().getTitle() : "-" // String 변환
+                                ? selectedMemberCard.getClassification().getTitle() : "-"
                 ))
                 .toList();
 
@@ -159,12 +164,12 @@ public class CardHistoryService {
         LocalDate startDate = targetMonth.atDay(1);
         LocalDate endDate = targetMonth.atEndOfMonth();
 
-        Paging page = new Paging(
-                selectedMemberCards.getNumber() + 1,
-                selectedMemberCards.getSize(),
-                selectedMemberCards.getTotalPages(),
-                selectedMemberCards.getTotalElements());
-
-        return new CardHistorySelectedResponse(cardHistoryResponses, startDate, endDate, memberCardsTotalCost, page);
+        return new CardHistorySelectedResponseWithPercent(
+                cardHistoryResponses,
+                startDate,
+                endDate,
+                classificationTotalCost,
+                percent
+        );
     }
 }
