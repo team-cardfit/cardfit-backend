@@ -32,29 +32,6 @@ public class ClassificationService {
         return classification.getId();
     }
 
-    // 로그인한 사용자의 uuid를 기반으로 분류 목록과 해당 분류에 연결된 카드 히스토리들을 반환
-    public List<ClassificationResponse> getClassificationList(String uuid) {
-        List<Classification> classifications = classificationRepository.findByUuid(uuid);
-
-        return classifications.stream()
-                .map(classification -> new ClassificationResponse(
-                        classification.getTitle(),
-                        classification.getCardHistories() == null ? List.of()
-                                : classification.getCardHistories().stream()
-                                .map(ch -> new CardHistoryResponse(
-                                        ch.getMemberCard().getCard().getCardName(),
-                                        ch.getMemberCard().getCard().getCardCorp(),
-                                        ch.getStoreName(),
-                                        ch.getAmount(),
-                                        ch.getPaymentDatetime(),
-                                        ch.getCategory(),
-                                        ch.getClassification() != null ? ch.getClassification().getTitle() : "-"
-                                ))
-                                .collect(Collectors.toList())
-                ))
-                .collect(Collectors.toList());
-    }
-
     // 분류 제거
     @Transactional
     public void deleteClassification(Long classificationId) {

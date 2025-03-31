@@ -42,7 +42,7 @@ public class CardHistoryService {
     }
 
     //특정 사용자의 선택한 카드들의 기간별 사용 내역을 조회
-    public CardHistorySelectedResponse getSelected(List<Long>selectedCardIds, Integer monthOffset, Pageable pageable) {
+    public CardHistorySelectedResponse getSelected(List<Long> selectedCardIds, Integer monthOffset, Pageable pageable) {
         Page<CardHistory> selectedMemberCards = cardHistoryQueryRepository.findSelectedByMemberIdAndPeriod(selectedCardIds, monthOffset, pageable);
 
         Integer memberCardsTotalCost
@@ -75,7 +75,7 @@ public class CardHistoryService {
     }
 
 
-//    기능 1. 결제 기록에 Classification 추가.
+    //    기능 1. 결제 기록에 Classification 추가.
     @Transactional
     public CardHistory updateClassification(Long cardHistoryId, Long classificationId) {
 
@@ -122,53 +122,49 @@ public class CardHistoryService {
         return cardHistoryRepository.save(cardHistory);
     }
 
-    @Transactional
-    public CardHistoryResultPageResponse calculateClassificationPayments(
-            String uuid, List<Long> memberCardIds, Integer monthOffset, List<Long> classificationIds, Pageable pageable) {
+    // CardHistoryService.java
 
-        // 1. 총 결제 금액을 `getMemberCardsTotalAmount`로 구하기
-        Integer totalAmount = cardHistoryQueryRepository.getMemberCardsTotalAmount(memberCardIds, monthOffset);
+    public CardHistorySelectedResponse getSelected(
+            List<Long> selectedCardIds,
+            Integer monthOffset,
+            Long classificationId, // 추가된 파라미터
+            Pageable pageable) {
 
-        // 2. classificationIds에 해당하는 CardHistory 목록을 조회
-        Page<CardHistory> cardHistories = cardHistoryRepository.findByClassificationIdIn(classificationIds, pageable);
+        // 분류 조건을 포함한 결제 기록 조회
+        Page<CardHistory> selectedMemberCards =
+                cardHistoryQueryRepository.findSelectedByMemberIdAndPeriodAndClassification(
+                        selectedCardIds, monthOffset, classificationId, pageable);
 
-        double selectedAmount = 0;
+        // 분류 조건을 포함한 총 결제 금액 합계 조회
+        Integer memberCardsTotalCost =
+                cardHistoryQueryRepository.getMemberCardsTotalAmountByClassification(
+                        selectedCardIds, monthOffset, classificationId);
 
-        List<CardHistoryResponse> filteredCardHistories = new ArrayList<>(); // CardHistoryResponse 리스트로 변경
+        // 조회된 결과를 CardHistoryResponse로 매핑
+        List<CardHistoryResponse> cardHistoryResponses = selectedMemberCards.getContent()
+                .stream()
+                .map(selectedMemberCard -> new CardHistoryResponse(
+                        selectedMemberCard.getMemberCard().getCard().getCardName(),
+                        selectedMemberCard.getMemberCard().getCard().getCardCorp(),
+                        selectedMemberCard.getStoreName(),
+                        selectedMemberCard.getAmount(),
+                        selectedMemberCard.getPaymentDatetime(),
+                        selectedMemberCard.getCategory(),
+                        selectedMemberCard.getClassification() != null
+                                ? selectedMemberCard.getClassification().getTitle() : "-" // String 변환
+                ))
+                .toList();
 
-        // 3. 필터링된 카드 기록들을 모은다.
-        for (CardHistory history : cardHistories) {
-            if (classificationIds.contains(history.getClassification().getId())) { // ClassificationId로 필터링
-                filteredCardHistories.add(
-                        new CardHistoryResponse(
-                                history.getMemberCard().getCard().getCardName(),
-                                history.getMemberCard().getCard().getCardCorp(),
-                                history.getStoreName(),
-                                history.getAmount(),
-                                history.getPaymentDatetime(),
-                                history.getCategory(),
-                                history.getClassification() != null ? history.getClassification().getTitle() : "-"
-                        )
-                );
-                selectedAmount += history.getAmount(); // 선택된 금액의 합산
-            }
-        }
+        YearMonth targetMonth = YearMonth.from(LocalDate.now()).minusMonths(monthOffset);
+        LocalDate startDate = targetMonth.atDay(1);
+        LocalDate endDate = targetMonth.atEndOfMonth();
 
-        Paging paging = new Paging(cardHistories.getNumber(),
-                cardHistories.getSize(),
-                cardHistories.getTotalPages(),
-                cardHistories.getTotalElements());
+        Paging page = new Paging(
+                selectedMemberCards.getNumber() + 1,
+                selectedMemberCards.getSize(),
+                selectedMemberCards.getTotalPages(),
+                selectedMemberCards.getTotalElements());
 
-        // 4. 퍼센티지 계산 (총 금액 대비 선택된 금액 비율)
-        double percentage = totalAmount > 0 ? (selectedAmount / totalAmount) * 100 : 0;
-
-        // 퍼센티지를 두 자리까지 반올림
-        BigDecimal percentageDecimal = new BigDecimal(percentage).setScale(2, RoundingMode.HALF_UP);
-
-        // 5. 결과 반환
-        return new CardHistoryResultPageResponse( new CardHistoryResultResponse(filteredCardHistories, totalAmount, selectedAmount, percentageDecimal.doubleValue()),
-                paging);
+        return new CardHistorySelectedResponse(cardHistoryResponses, startDate, endDate, memberCardsTotalCost, page);
     }
 }
-
-

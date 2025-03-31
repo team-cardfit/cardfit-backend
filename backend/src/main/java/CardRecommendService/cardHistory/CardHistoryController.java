@@ -66,18 +66,22 @@ public class CardHistoryController {
     }
 
 
-    @GetMapping("/cardhistories/classification")
-    public CardHistoryResultPageResponse calculatePayments(@PathVariable String uuid,
-                                                       @RequestParam List<Long> memberCardIds,
-                                                       @RequestParam(required = false) Integer monthOffset,
-                                                       @RequestParam List<Long> classificationIds,
-                                                       @RequestParam (defaultValue = "1") int page,
-                                                       @RequestParam (defaultValue = "13") int size) {
+// CardHistoryController.java
 
-        Pageable pageable = PageRequest.of(page -1, size);
+    @GetMapping("/membercards/histories/selected")
+    public CardHistorySelectedResponse getSelectedMemberCards(
+            @RequestParam String selectedCardIds,
+            @RequestParam(required = false, defaultValue = "1") Integer monthOffset,
+            @RequestParam Long classificationId,  // 분류 계정 id 추가
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "13") int size) {
 
-        return cardHistoryService.calculateClassificationPayments(uuid, memberCardIds, monthOffset, classificationIds, pageable);
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        List<Long> ids = Arrays.stream(selectedCardIds.split(","))
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+
+        return cardHistoryService.getSelected(ids, monthOffset, classificationId, pageable);
     }
-
-
 }

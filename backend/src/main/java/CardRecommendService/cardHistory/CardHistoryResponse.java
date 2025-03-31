@@ -1,9 +1,5 @@
 package CardRecommendService.cardHistory;
 
-import CardRecommendService.Classification.Classification;
-import CardRecommendService.Classification.ClassificationResponse;
-import CardRecommendService.memberCard.MemberCardResponse;
-
 import java.time.LocalDateTime;
 
 public record CardHistoryResponse(

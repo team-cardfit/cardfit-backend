@@ -3,7 +3,6 @@ package CardRecommendService.cardHistory;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -88,8 +87,6 @@ public class CardHistoryQueryRepository {
         return qCardHistory.paymentDatetime.between(startDate, endDate);
     }
 
-
-
     public int getMemberCardsTotalAmount(List<Long> memberCardIds, Integer monthOffset) {
         QCardHistory qCardHistory = QCardHistory.cardHistory;
 
@@ -101,6 +98,55 @@ public class CardHistoryQueryRepository {
         return (totalAmount != null) ? totalAmount : 0;
     }
 
+// CardHistoryQueryRepository.java
 
+    public Page<CardHistory> findSelectedByMemberIdAndPeriodAndClassification(
+            List<Long> memberCardIds,
+            Integer monthOffset,
+            Long classificationId,
+            Pageable pageable) {
 
+        // 기간 조건은 기존과 동일하게 적용합니다.
+        BooleanExpression periodCondition = queryConditions(monthOffset);
+        // 분류 조건: classification이 null이 아닌 경우에만 필터링합니다.
+        BooleanExpression classificationCondition = qCardHistory.classification.id.eq(classificationId);
+
+        List<CardHistory> content = queryFactory
+                .selectFrom(qCardHistory)
+                .where(qCardHistory.memberCard.id.in(memberCardIds)
+                        .and(periodCondition)
+                        .and(classificationCondition))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(qCardHistory.paymentDatetime.asc())
+                .fetch();
+
+        Long total = queryFactory
+                .select(qCardHistory.count())
+                .from(qCardHistory)
+                .where(qCardHistory.memberCard.id.in(memberCardIds)
+                        .and(periodCondition)
+                        .and(classificationCondition))
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total != null ? total : 0);
+    }
+
+    public Integer getMemberCardsTotalAmountByClassification(
+            List<Long> memberCardIds,
+            Integer monthOffset,
+            Long classificationId) {
+        BooleanExpression periodCondition = queryConditions(monthOffset);
+        BooleanExpression classificationCondition = qCardHistory.classification.id.eq(classificationId);
+
+        Integer totalAmount = queryFactory
+                .select(qCardHistory.amount.sum())
+                .from(qCardHistory)
+                .where(qCardHistory.memberCard.id.in(memberCardIds)
+                        .and(periodCondition)
+                        .and(classificationCondition))
+                .fetchOne();
+
+        return (totalAmount != null) ? totalAmount : 0;
+    }
 }
