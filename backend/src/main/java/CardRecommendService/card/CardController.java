@@ -32,7 +32,7 @@ public class CardController {
 
     //카드 추천 서비스 로직
     @GetMapping("/cards/recommend")
-    public List<long[]> getRecommendCards(
+    public CardRecommendResponse getRecommendCards(
             @RequestParam int minAnnualFee,
             @RequestParam int maxAnnualFee,
             @RequestParam Set<Category> storeCategories) {
