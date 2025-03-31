@@ -98,8 +98,6 @@ public class CardHistoryQueryRepository {
         return (totalAmount != null) ? totalAmount : 0;
     }
 
-// CardHistoryQueryRepository.java
-
     public Page<CardHistory> findSelectedByMemberIdAndPeriodAndClassification(
             List<Long> memberCardIds,
             Integer monthOffset,
