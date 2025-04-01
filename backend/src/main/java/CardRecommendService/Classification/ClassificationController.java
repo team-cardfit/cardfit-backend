@@ -1,32 +1,34 @@
 package CardRecommendService.Classification;
 
-import CardRecommendService.cardHistory.CardHistoryService;
 import CardRecommendService.loginUtils.CurrentUserId;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
-// ClassificationController.java
 @RestController
 public class ClassificationController {
 
     private final ClassificationService classificationService;
-    private final CardHistoryService cardHistoryService;
 
-    public ClassificationController(ClassificationService classificationService, CardHistoryService cardHistoryService) {
+    public ClassificationController(ClassificationService classificationService) {
         this.classificationService = classificationService;
-        this.cardHistoryService = cardHistoryService;
     }
 
-    // 분류 생성 엔드포인트: @ResponseStatus를 사용하여 HTTP 201(CREATED)을 반환
     @PostMapping("/classifications")
     @ResponseStatus(HttpStatus.CREATED)
     public Map<String, Long> createClassification(@RequestBody CreateClassificationRequest request,
                                                   @CurrentUserId String uuid) {
         Long classificationId = classificationService.createClassification(request, uuid);
         return Map.of("id", classificationId);
+    }
+
+    @GetMapping("/classifications")
+    @ResponseStatus(HttpStatus.OK)
+    public List<CreateClassificationResponse> getMyClassifications(@CurrentUserId String uuid) {
+        return classificationService.getClassificationsByUuid(uuid);
     }
 
     // 분류 삭제
