@@ -1,23 +1,18 @@
 package CardRecommendService.Classification;
 
-import CardRecommendService.cardHistory.CardHistoryRepository;
-import CardRecommendService.cardHistory.CardHistoryResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 // ClassificationService.java
 @Service
 public class ClassificationService {
 
     private final ClassificationRepository classificationRepository;
-    private final CardHistoryRepository cardHistoryRepository;
 
-    public ClassificationService(ClassificationRepository classificationRepository, CardHistoryRepository cardHistoryRepository) {
+    public ClassificationService(ClassificationRepository classificationRepository) {
         this.classificationRepository = classificationRepository;
-        this.cardHistoryRepository = cardHistoryRepository;
     }
 
     @Transactional
@@ -30,6 +25,13 @@ public class ClassificationService {
         classificationRepository.save(classification);
 
         return classification.getId();
+    }
+
+    @Transactional
+    public List<CreateClassificationResponse> getClassificationsByUuid(String uuid) {
+        return classificationRepository.findAllByUuid(uuid).stream()
+                .map(c -> new CreateClassificationResponse(c.getTitle()))
+                .toList();
     }
 
     // 분류 제거

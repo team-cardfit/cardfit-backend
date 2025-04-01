@@ -1,6 +1,5 @@
 package CardRecommendService.cardHistory;
 
-import CardRecommendService.loginUtils.CurrentUserId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
