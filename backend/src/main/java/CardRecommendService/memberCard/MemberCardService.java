@@ -29,7 +29,6 @@ public class MemberCardService {
                 .stream()
                 .map(memberCard -> {
                     // 각 카드에 해당하는 결제 내역을 조회하여 총 결제 금액 계산
-                    List<CardHistory> cardHistories = cardHistoryRepository.findByMemberCardId(memberCard.getId());
                     return new CardBasicInfoResponse(
                             memberCard.getId(),
                             memberCard.getCard().getCardName(),
@@ -37,7 +36,7 @@ public class MemberCardService {
                             memberCard.getCard().getImgUrl(),
                             memberCard.getId(),
                             memberCard.getCard().getAltTxt(),
-                            totalCost(cardHistories)
+                            totalCost(memberCard.getCardHistories())
                     );
                 })
                 .collect(Collectors.toList());
@@ -46,9 +45,7 @@ public class MemberCardService {
     // 03. 분석카드 목록
     // 선택된 카드 아이디 리스트로 카드 정보 조회 (MemberCardService)
     public List<CardBasicInfoResponse> selectCardsByIds(List<Long> memberCardId) {
-
         List<MemberCard> memberCards = memberCardRepository.findAllByIdIn(memberCardId);
-        List<CardHistory> cardHistories = cardHistoryRepository.findAllById(memberCardId);
 
         return memberCards.stream()
                 .map(memberCard -> new CardBasicInfoResponse(
@@ -58,7 +55,7 @@ public class MemberCardService {
                         memberCard.getCard().getImgUrl(),
                         memberCard.getId(),
                         memberCard.getCard().getAltTxt(),
-                        totalCost(cardHistories)
+                        totalCost(memberCard.getCardHistories())
                 ))
                 .collect(Collectors.toList());
     }
