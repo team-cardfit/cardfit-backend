@@ -64,11 +64,27 @@ public class CardService {
         List<Long> matchedCards = filteredCards.stream()
                 .map(card -> new long[]{card.getId(), countMatchedCategories(card, selectedCategories)})
                 .sorted((a, b) -> Long.compare(b[1], a[1])) // 매칭된 개수 기준으로 내림차순 정렬
-                .limit(4) // 최대 4개 제한
+                .limit(5) // 최대 4개 제한
                 .map(id -> (Long) id[0])
                 .collect(Collectors.toList());
 
-        return new CardRecommendResponse(matchedCards, selectedCategories);
+        List<Card> top3ByIdIn = cardRepository.findTop3ByIdIn(matchedCards);
+
+        List<CardDetailResponse> list = top3ByIdIn.stream().map(
+                        cards -> new CardDetailResponse(cards.getCardName(),
+                                cards.getCardCorp(),
+                                cards.getImgUrl(),
+                                cards.getAnnualFee(),
+                                cards.getStore1(),
+                                cards.getDiscount1(),
+                                cards.getStore2(),
+                                cards.getDiscount2(),
+                                cards.getStore3(),
+                                cards.getDiscount3()
+                        ))
+                .toList();
+
+        return new CardRecommendResponse(list, selectedCategories);
     }
 
     // 카드의 카테고리와 선택한 카테고리 일치 개수 계산

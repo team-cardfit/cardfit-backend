@@ -3,7 +3,6 @@ package CardRecommendService.card;
 import CardRecommendService.cardHistory.Category;
 
 public record CardDetailResponse(
-
         String cardName,
         String cardCorp,
         String imgUrl,
@@ -14,8 +13,5 @@ public record CardDetailResponse(
         String discount2,
         Category store3,
         String discount3
-
 ) {
-
-
 }
