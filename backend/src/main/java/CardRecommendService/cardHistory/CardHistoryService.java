@@ -34,8 +34,6 @@ public class CardHistoryService {
         Integer memberCardsTotalCost
                 = cardHistoryQueryRepository.getMemberCardsTotalAmount(selectedCardIds, monthOffset);
 
-
-
         List<CardHistoryResponse> cardHistoryResponses = selectedMemberCards.getContent()
                 .stream()
                 .map(selectedMemberCard -> new CardHistoryResponse(

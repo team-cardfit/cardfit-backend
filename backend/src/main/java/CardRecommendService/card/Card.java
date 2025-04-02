@@ -67,19 +67,19 @@ public class Card {
         this.cardBenefits = cardBenefits;
     }
 
-    public Card(String cardName, String cardCorp, String imgUrl, int annualFee, Category store1, String discount1, Category store2, String discount2, Category store3, String discount3, EnumSet<Category> category) {
-        this.cardName = cardName;
-        this.cardCorp = cardCorp;
-        this.imgUrl = imgUrl;
-        this.annualFee = annualFee;
-        this.store1 = store1;
-        this.discount1 = discount1;
-        this.store2 = store2;
-        this.discount2 = discount2;
-        this.store3 = store3;
-        this.discount3 = discount3;
-        this.category = category;
-    }
+//    public Card(String cardName, String cardCorp, String imgUrl, int annualFee, Category store1, String discount1, Category store2, String discount2, Category store3, String discount3, EnumSet<Category> category) {
+//        this.cardName = cardName;
+//        this.cardCorp = cardCorp;
+//        this.imgUrl = imgUrl;
+//        this.annualFee = annualFee;
+//        this.store1 = store1;
+//        this.discount1 = discount1;
+//        this.store2 = store2;
+//        this.discount2 = discount2;
+//        this.store3 = store3;
+//        this.discount3 = discount3;
+//        this.category = category;
+//    }
 
     public Long getId() {
         return Id;

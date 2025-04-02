@@ -8,4 +8,6 @@ public interface CardRepository extends JpaRepository<Card, Long> {
 
     List<Card> findByAnnualFeeBetween(int minAnnualFee, int maxAnnualFee);
 
+    List<Card> findTop3ByIdIn(List<Long> ids);
+
 }

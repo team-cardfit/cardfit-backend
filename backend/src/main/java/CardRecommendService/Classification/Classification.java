@@ -16,9 +16,6 @@ public class Classification {
 
     private String title;
 
-    @ManyToOne
-    private CardHistory getCardHistories;
-
     @OneToMany(mappedBy = "classification")
     private List<CardHistory> cardHistories;
 
@@ -35,9 +32,6 @@ public class Classification {
         return cardHistories;
     }
 
-    public CardHistory getGetCardHistories() {
-        return getCardHistories;
-    }
 
     public Long getId() {
         return id;
@@ -47,9 +41,6 @@ public class Classification {
         return title;
     }
 
-    public CardHistory getCardHistory() {
-        return getCardHistories;
-    }
 
     public Classification(String title) {
         this.title = title;
