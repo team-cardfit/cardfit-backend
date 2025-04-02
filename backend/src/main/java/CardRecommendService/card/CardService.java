@@ -1,7 +1,5 @@
 package CardRecommendService.card;
 
-
-import CardRecommendService.cardBenefits.CardBenefitsResponse;
 import CardRecommendService.cardHistory.Category;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;

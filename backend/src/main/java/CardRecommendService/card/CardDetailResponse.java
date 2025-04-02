@@ -1,11 +1,6 @@
 package CardRecommendService.card;
 
-import CardRecommendService.cardBenefits.CardBenefitsResponse;
 import CardRecommendService.cardHistory.Category;
-import CardRecommendService.memberCard.MemberCardResponse;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public record CardDetailResponse(
 

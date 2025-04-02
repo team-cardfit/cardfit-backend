@@ -19,7 +19,7 @@ public class CardHistoryController {
         this.cardHistoryService = cardHistoryService;
     }
 
-    //특정 사용자의 선택한 카드들의 기간별 사용 내역을 조회
+    //04. 특정 사용자의 선택한 카드들의 기간별 사용 내역을 조회
     @GetMapping("/membercards/histories/selected")
     public CardHistorySelectedResponse getSelectedMemberCards(@RequestParam String selectedCardIds,
                                                   @RequestParam(required = false, defaultValue = "1") Integer monthOffset,
