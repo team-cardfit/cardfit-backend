@@ -6,7 +6,6 @@ public record CardBasicInfoResponse(
         String cardCorp,
         String cardImg,
         Long memberCardId,
-        String altTxt
-
-) {
+        String altTxt,
+        Integer cardTotalAmount) {
 }

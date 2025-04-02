@@ -87,6 +87,7 @@ public class CardHistoryQueryRepository {
         return qCardHistory.paymentDatetime.between(startDate, endDate);
     }
 
+    //여러개의 카드들의 총합계
     public int getMemberCardsTotalAmount(List<Long> memberCardIds, Integer monthOffset) {
         QCardHistory qCardHistory = QCardHistory.cardHistory;
 
