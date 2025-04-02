@@ -1,6 +1,5 @@
 package CardRecommendService.memberCard;
 
-
 import CardRecommendService.cardHistory.CardHistory;
 import CardRecommendService.card.Card;
 import jakarta.persistence.*;
@@ -62,5 +61,15 @@ public class MemberCard {
 
     public List<CardHistory> getCardHistories() {
         return cardHistories;
+    }
+
+    public Integer getTotalCost() {
+        int totalAmount = 0;
+        if (cardHistories != null) {
+            for (CardHistory cardHistory : cardHistories) {
+                totalAmount += cardHistory.getAmount();
+            }
+        }
+        return totalAmount;
     }
 }

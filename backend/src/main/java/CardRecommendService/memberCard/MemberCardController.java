@@ -2,9 +2,7 @@ package CardRecommendService.memberCard;
 
 
 import CardRecommendService.card.CardBasicInfoResponse;
-import CardRecommendService.cardHistory.CardHistorySelectedRequest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -55,5 +53,4 @@ public class MemberCardController {
 
         return memberCardService.getCardsHistories(memberCardIds, monthOffset, page, size);
     }
-
 }

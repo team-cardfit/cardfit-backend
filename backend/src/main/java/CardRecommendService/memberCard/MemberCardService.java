@@ -36,7 +36,7 @@ public class MemberCardService {
                             memberCard.getCard().getImgUrl(),
                             memberCard.getId(),
                             memberCard.getCard().getAltTxt(),
-                            totalCost(memberCard.getCardHistories())
+                            memberCard.getTotalCost()
                     );
                 })
                 .collect(Collectors.toList());
@@ -55,17 +55,9 @@ public class MemberCardService {
                         memberCard.getCard().getImgUrl(),
                         memberCard.getId(),
                         memberCard.getCard().getAltTxt(),
-                        totalCost(memberCard.getCardHistories())
+                        memberCard.getTotalCost()
                 ))
                 .collect(Collectors.toList());
-    }
-
-    Integer totalCost (List<CardHistory> cardHistories) {
-        int totalAmount = 0;
-        for (CardHistory cardHistory : cardHistories) {
-           totalAmount = totalAmount + cardHistory.getAmount();
-        }
-        return totalAmount;
     }
 
     // 멤버 카드와 결제 내역을 조회, 결제 내역을 월 단위로 필터링
