@@ -134,8 +134,9 @@ public class CardHistoryService {
                 : 0;
 
         // 조회된 결과를 CardHistoryResponse로 매핑
-        List<CardHistoryResponse> cardHistoryResponses = selectedMemberCards.stream()
-                .map(selectedMemberCard -> new CardHistoryResponse(
+        List<SetCardHistoriesResponse> setCardHistoriesResponses = selectedMemberCards.stream()
+                .map(selectedMemberCard -> new SetCardHistoriesResponse(
+                        selectedMemberCard.getId(),
                         selectedMemberCard.getMemberCard().getCard().getCardName(),
                         selectedMemberCard.getMemberCard().getCard().getCardCorp(),
                         selectedMemberCard.getStoreName(),
@@ -152,7 +153,7 @@ public class CardHistoryService {
         LocalDate endDate = targetMonth.atEndOfMonth();
 
         return new CardHistorySelectedResponseWithPercentResponse(
-                cardHistoryResponses,
+                setCardHistoriesResponses,
                 startDate,
                 endDate,
                 classificationTotalCost,

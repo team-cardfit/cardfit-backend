@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record CardHistorySelectedResponseWithPercentResponse(
-        List<CardHistoryResponse> cardHistoryResponseList,
+        List<SetCardHistoriesResponse> setCardHistoriesResponses,
         LocalDate startDate,
         LocalDate endDate,
         Integer classificationCost,
