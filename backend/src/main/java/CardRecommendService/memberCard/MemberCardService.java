@@ -36,7 +36,7 @@ public class MemberCardService {
                             memberCard.getCard().getImgUrl(),
                             memberCard.getId(),
                             memberCard.getCard().getAltTxt(),
-                            memberCard.getTotalCost()
+                            memberCard.getCardHistoriesCollection().getTotalCost()
                     );
                 })
                 .collect(Collectors.toList());
@@ -55,7 +55,7 @@ public class MemberCardService {
                         memberCard.getCard().getImgUrl(),
                         memberCard.getId(),
                         memberCard.getCard().getAltTxt(),
-                        memberCard.getTotalCost()
+                        memberCard.getCardHistoriesCollection().getTotalCost()
                 ))
                 .collect(Collectors.toList());
     }

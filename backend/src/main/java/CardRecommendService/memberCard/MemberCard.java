@@ -1,5 +1,6 @@
 package CardRecommendService.memberCard;
 
+import CardRecommendService.cardHistory.CardHistories;
 import CardRecommendService.cardHistory.CardHistory;
 import CardRecommendService.card.Card;
 import jakarta.persistence.*;
@@ -23,7 +24,7 @@ public class MemberCard {
 
     private String uuid;
 
-    public MemberCard() {
+    protected MemberCard() {
     }
 
     public MemberCard(String cardNumber, Card card, List<CardHistory> cardHistories, String uuid) {
@@ -59,17 +60,8 @@ public class MemberCard {
         return uuid;
     }
 
-    public List<CardHistory> getCardHistories() {
-        return cardHistories;
-    }
-
-    public Integer getTotalCost() {
-        int totalAmount = 0;
-        if (cardHistories != null) {
-            for (CardHistory cardHistory : cardHistories) {
-                totalAmount += cardHistory.getAmount();
-            }
-        }
-        return totalAmount;
+    //일급컬랙션 사용
+    public CardHistories getCardHistoriesCollection() {
+        return new CardHistories(cardHistories);
     }
 }
