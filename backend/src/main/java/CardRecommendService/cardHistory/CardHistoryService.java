@@ -108,6 +108,7 @@ public class CardHistoryService {
         return cardHistoryRepository.save(cardHistory);
     }
 
+    //page06
     public CardHistorySelectedResponseWithPercentResponse getSelected(
             List<Long> selectedCardIds,
             Integer monthOffset,
@@ -133,8 +134,9 @@ public class CardHistoryService {
                 : 0;
 
         // 조회된 결과를 CardHistoryResponse로 매핑
-        List<CardHistoryResponse> cardHistoryResponses = selectedMemberCards.stream()
-                .map(selectedMemberCard -> new CardHistoryResponse(
+        List<SetCardHistoriesResponse> setCardHistoriesResponses = selectedMemberCards.stream()
+                .map(selectedMemberCard -> new SetCardHistoriesResponse(
+                        selectedMemberCard.getId(),
                         selectedMemberCard.getMemberCard().getCard().getCardName(),
                         selectedMemberCard.getMemberCard().getCard().getCardCorp(),
                         selectedMemberCard.getStoreName(),
@@ -151,26 +153,30 @@ public class CardHistoryService {
         LocalDate endDate = targetMonth.atEndOfMonth();
 
         return new CardHistorySelectedResponseWithPercentResponse(
-                cardHistoryResponses,
+                setCardHistoriesResponses,
                 startDate,
                 endDate,
                 classificationTotalCost,
+                overallTotalCost,
                 percent
         );
     }
 
+    //분류에 들어가는 카드 히스토리 수정
     @Transactional
-    public void updateClassificationForSelectedCardHistories(List<Long> cardHistoryIds, Long targetClassificationId) {
+    public UpdateClassificationResponse updateClassificationForSelectedCardHistories(UpdateClassificationRequest request) {
         // 대상 분류 조회
-        Classification targetClassification = classificationRepository.findById(targetClassificationId)
+        Classification targetClassification = classificationRepository.findById(request.classificationId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 분류를 찾을 수 없습니다."));
 
         // 선택된 카드히스토리들을 조회
-        List<CardHistory> cardHistories = cardHistoryRepository.findAllById(cardHistoryIds);
+        List<CardHistory> cardHistories = cardHistoryRepository.findAllById(request.cardHistoriesIds());
 
         // 각 카드히스토리에 대해 업데이트 수행
         for (CardHistory history : cardHistories) {
             history.setClassification(targetClassification);
         }
+
+        return new UpdateClassificationResponse(request.classificationId());
     }
 }
