@@ -17,14 +17,16 @@ public class ClassificationController {
         this.classificationService = classificationService;
     }
 
+    //생성
     @PostMapping("/classifications")
     @ResponseStatus(HttpStatus.CREATED)
-    public Map<String, Long> createClassification(@RequestBody CreateClassificationRequest request,
+    public ClassificationCreateResponse createClassification(@RequestBody CreateClassificationRequest request,
                                                   @CurrentUserId String uuid) {
-        Long classificationId = classificationService.createClassification(request, uuid);
-        return Map.of("id", classificationId);
+
+        return classificationService.createClassification(request, uuid);
     }
 
+    //조회
     @GetMapping("/classifications")
     @ResponseStatus(HttpStatus.OK)
     public List<CreateClassificationResponse> getMyClassifications(@CurrentUserId String uuid) {

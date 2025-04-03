@@ -16,7 +16,7 @@ public class ClassificationService {
     }
 
     @Transactional
-    public Long createClassification(CreateClassificationRequest request, String uuid) {
+    public ClassificationCreateResponse createClassification(CreateClassificationRequest request, String uuid) {
         Classification classification = new Classification(
                 request.title(),
                 uuid
@@ -24,7 +24,8 @@ public class ClassificationService {
 
         classificationRepository.save(classification);
 
-        return classification.getId();
+        return new ClassificationCreateResponse(classification.getTitle(),
+                classification.getUuid());
     }
 
     @Transactional

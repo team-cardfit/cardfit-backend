@@ -7,6 +7,7 @@ public record CardHistorySelectedResponseWithPercentResponse(
         List<CardHistoryResponse> cardHistoryResponseList,
         LocalDate startDate,
         LocalDate endDate,
+        Integer classificationCost,
         Integer totalCost,
         Double percent
 ) {
