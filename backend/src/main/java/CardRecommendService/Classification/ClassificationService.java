@@ -28,10 +28,12 @@ public class ClassificationService {
                 classification.getUuid());
     }
 
-    @Transactional
+    //분류 조회
     public List<CreateClassificationResponse> getClassificationsByUuid(String uuid) {
         return classificationRepository.findAllByUuid(uuid).stream()
-                .map(c -> new CreateClassificationResponse(c.getTitle()))
+                .map(c -> new CreateClassificationResponse(
+                        c.getId(),
+                        c.getTitle()))
                 .toList();
     }
 
