@@ -3,7 +3,7 @@ package CardRecommendService.cardHistory;
 import java.time.LocalDateTime;
 
 public record SetCardHistoriesResponse(
-        Long id,
+        Long cardHistoryId,
         String cardName,
         String cardCorp,
         String storeName,
