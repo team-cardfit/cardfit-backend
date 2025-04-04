@@ -12,12 +12,10 @@ import java.util.stream.Collectors;
 public class MemberCardService {
 
     private final MemberCardRepository memberCardRepository;
-    private final CardHistoryRepository cardHistoryRepository;
     private final CardHistoryQueryRepository cardHistoryQueryRepository;
 
-    public MemberCardService(MemberCardRepository memberCardRepository, CardHistoryRepository cardHistoryRepository, CardHistoryQueryRepository cardHistoryQueryRepository, CardHistoryQueryRepository cardHistoryQueryRepository1) {
+    public MemberCardService(MemberCardRepository memberCardRepository, CardHistoryQueryRepository cardHistoryQueryRepository, CardHistoryQueryRepository cardHistoryQueryRepository1) {
         this.memberCardRepository = memberCardRepository;
-        this.cardHistoryRepository = cardHistoryRepository;
         this.cardHistoryQueryRepository = cardHistoryQueryRepository1;
     }
 
@@ -104,5 +102,4 @@ public class MemberCardService {
         return new DailyCardHistoryPageResponse(dailyCardHistoryResponses,
                 totalCost, page, totalPages, size, totalCount);
     }
-
 }
