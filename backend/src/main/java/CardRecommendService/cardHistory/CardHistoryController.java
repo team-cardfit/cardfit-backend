@@ -82,4 +82,16 @@ public class CardHistoryController {
         // 서비스 로직 호출
         return cardHistoryService.updateClassificationForSelectedCardHistories(request);
     }
+
+    //page07. 모든 분류 조회하기
+    @GetMapping("membercards/classifications/analyzed")
+    public List<AnalyzedResponse> getClassificationsData(@RequestParam String selectedCardIds,
+                                                         @RequestParam (defaultValue = "1") int monthOffset){
+
+        List<Long> ids = Arrays.stream(selectedCardIds.split(","))
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+
+        return cardHistoryService.cardHistoriesAnalyzedByClassifications(ids, monthOffset);
+    }
 }

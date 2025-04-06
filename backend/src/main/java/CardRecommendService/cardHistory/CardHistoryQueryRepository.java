@@ -1,6 +1,7 @@
 
 package CardRecommendService.cardHistory;
 
+import com.querydsl.core.Tuple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -11,8 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -128,15 +128,20 @@ public class CardHistoryQueryRepository {
                 .where(qCardHistory.memberCard.id.in(memberCardIds)
                         .and(queryConditions(monthOffset)))
                 .groupBy(qCardHistory.classification.id)
+                .orderBy(qCardHistory.classification.id.asc())
                 .fetch()
                 .stream()
                 .collect(Collectors.toMap(
                         tuple -> tuple.get(0, Long.class),
                         tuple -> {
 
+
                             Integer amount = tuple.get(1, Integer.class);
                             return amount != null ? amount : 0;
-                        }
+                        },
+                        (existing, replacement) -> existing,
+                        LinkedHashMap::new
+
                 ));
     }
 
@@ -148,6 +153,7 @@ public class CardHistoryQueryRepository {
                 .from(qCardHistory)
                 .where(qCardHistory.memberCard.id.in(memberCardIds)
                         .and(queryConditions(monthOffset)))
+                .orderBy(qCardHistory.classification.id.asc())
                 .fetch()
                 .stream()
                 .collect(Collectors.toMap(
@@ -157,8 +163,27 @@ public class CardHistoryQueryRepository {
                             String title = tuple.get(1, String.class);
                             return title != null ? title : "-";
 
-                        }
+                        },
+                        (existing, replacement) -> existing,
+                        LinkedHashMap::new
+
                 ));
+    }
+
+
+    public Set<Category> getTop5CategoriesList(List<Long> memberCardIds, int monthOffset){
+
+        return new HashSet<>(
+                queryFactory
+                .select(qCardHistory.category)
+                .from(qCardHistory)
+                .where(qCardHistory.memberCard.id.in(memberCardIds)
+                        .and(queryConditions(monthOffset)))
+                .groupBy(qCardHistory.category)
+                .orderBy(qCardHistory.amount.sum().asc())
+                .limit(5)
+                .fetch());
+
     }
 
 
