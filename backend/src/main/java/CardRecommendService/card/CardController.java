@@ -33,11 +33,20 @@ public class CardController {
     //카드 추천 서비스 로직
     @GetMapping("/cards/recommend")
     public CardRecommendResponse getRecommendCards(
-            @RequestParam int minAnnualFee,
-            @RequestParam int maxAnnualFee,
+            @RequestParam (defaultValue = "0")int minAnnualFee,
+            @RequestParam (defaultValue = "500000")int maxAnnualFee,
             @RequestParam Set<Category> storeCategories) {
 
         return cardService.getRecommendCards(storeCategories, minAnnualFee, maxAnnualFee);
+    }
+
+    @GetMapping("cards/recommendation")
+    public List<CardDetailResponse> CardRecommendByAmount (@RequestParam List<Long> selectedCardIds,
+                                                           @RequestParam (defaultValue = "0") int minAnnualFee,
+                                                           @RequestParam (defaultValue = "500000") int maxAnnualFee,
+                                                           @RequestParam (defaultValue = "1") int monthOffset){
+
+        return cardService.getRecommendedCardsInfo(selectedCardIds, minAnnualFee, maxAnnualFee, monthOffset);
 
     }
 }

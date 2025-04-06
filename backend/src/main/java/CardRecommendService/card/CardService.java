@@ -1,6 +1,8 @@
 package CardRecommendService.card;
 
+import CardRecommendService.cardHistory.CardHistoryQueryRepository;
 import CardRecommendService.cardHistory.Category;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +14,14 @@ import java.util.stream.Stream;
 public class CardService {
 
     private final CardRepository cardRepository;
+    private final CardHistoryQueryRepository queryRepository;
+    private final QCardRepository qCardRepository;
 
 
-    public CardService(CardRepository cardRepository, List<Card> allCards) {
+    public CardService(CardRepository cardRepository, List<Card> allCards, CardHistoryQueryRepository queryRepository, QCardRepository qCardRepository) {
         this.cardRepository = cardRepository;
+        this.queryRepository = queryRepository;
+        this.qCardRepository = qCardRepository;
     }
 
     //모든 카드 리스트를 목록으로 조회
@@ -100,6 +106,62 @@ public class CardService {
         return Stream.of(card.getStore1(), card.getStore2(), card.getStore3())
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
+    }
+
+
+
+    //결제 금액 상위 5개 카테고리와 카드의 카테고리 일치 개수 개산
+    private Map<Long, Integer> recommendedCads(List<Long> memberCardIds,
+                                               int minAnnualFee,
+                                               int maxAnnualFee,
+                                               int monthOffset){
+
+        Set<Category> categories = queryRepository.getTop5CategoriesList(memberCardIds, monthOffset);
+
+        List<Card> cardsMatchingTopCategories = qCardRepository.findCardsMatchingTopCategoriesAndAnnualFee(categories, minAnnualFee, maxAnnualFee);
+
+        return cardsMatchingTopCategories.stream()
+                .collect(Collectors.toMap(Card::getId,
+                        card -> {
+                            int matchCount = 0;
+                            if (categories.contains(card.getStore1())) matchCount++;
+                            if (categories.contains(card.getStore2())) matchCount++;
+                            if (categories.contains(card.getStore3())) matchCount++;
+                            return matchCount;
+                        }
+                        ));
+    };
+
+    //카드추천 로직
+    public List<CardDetailResponse> getRecommendedCardsInfo(List<Long> memberCardIds,
+                                                            int minAnnualFee,
+                                                            int maxAnnualFee,
+                                                            int monthOffset){
+
+        Map<Long, Integer> cardIdAndMatchCategoriesCountMap = recommendedCads(memberCardIds, minAnnualFee, maxAnnualFee, monthOffset);
+
+        List<Long> top3CardIds = cardIdAndMatchCategoriesCountMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.<Long, Integer>comparingByValue().reversed())
+                .limit(3)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        List<Card> top3CardsInfo = cardRepository.findAllById(top3CardIds);
+
+        return top3CardsInfo.stream().map(card ->
+                new CardDetailResponse(
+                        card.getCardName(),
+                        card.getCardCorp(),
+                        card.getImgUrl(),
+                        card.getAnnualFee(),
+                        card.getStore1(),
+                        card.getDiscount1(),
+                        card.getStore2(),
+                        card.getDiscount2(),
+                        card.getStore3(),
+                        card.getDiscount3())
+        ).toList();
     }
 
 

@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Card {
@@ -139,5 +140,17 @@ public class Card {
 
     public String getDiscount3() {
         return discount3;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Card card = (Card) o;
+        return annualFee == card.annualFee && Objects.equals(Id, card.Id) && Objects.equals(cardName, card.cardName) && Objects.equals(cardCorp, card.cardCorp) && Objects.equals(imgUrl, card.imgUrl) && Objects.equals(altTxt, card.altTxt) && Objects.equals(memberCards, card.memberCards) && Objects.equals(cardBenefits, card.cardBenefits) && Objects.equals(category, card.category) && store1 == card.store1 && store2 == card.store2 && store3 == card.store3 && Objects.equals(discount1, card.discount1) && Objects.equals(discount2, card.discount2) && Objects.equals(discount3, card.discount3);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(Id, cardName, cardCorp, imgUrl, annualFee, altTxt, memberCards, cardBenefits, category, store1, store2, store3, discount1, discount2, discount3);
     }
 }

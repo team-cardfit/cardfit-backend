@@ -5,8 +5,10 @@ import CardRecommendService.loginUtils.CurrentUserId;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 public class ClassificationController {
@@ -38,4 +40,5 @@ public class ClassificationController {
     public void deleteClassification(@PathVariable Long classificationId) {
         classificationService.deleteClassification(classificationId);
     }
+
 }

@@ -27,7 +27,7 @@ public class CardHistoryService {
         this.classificationRepository = classificationRepository;
     }
 
-    //특정 사용자의 선택한 카드들의 기간별 사용 내역을 조회
+    //page05. 특정 사용자의 선택한 카드들의 기간별 사용 내역을 조회
     public CardHistorySelectedResponse getSelected(List<Long> selectedCardIds, Integer monthOffset, Pageable pageable) {
         Page<CardHistory> selectedMemberCards = cardHistoryQueryRepository.findSelectedByMemberIdAndPeriod(selectedCardIds, monthOffset, pageable);
 
@@ -178,5 +178,27 @@ public class CardHistoryService {
         }
 
         return new UpdateClassificationResponse(request.classificationId());
+    }
+
+    //page07. 모든 분류 조회하기
+    public List<AnalyzedResponse> cardHistoriesAnalyzedByClassifications (List<Long> selectedCardIds, int monthOffset){
+
+        int totalAmountBySelectedCards = cardHistoryQueryRepository.getMemberCardsTotalAmount(selectedCardIds, monthOffset);
+
+        Map<Long, Integer> amountsByClassifications = cardHistoryQueryRepository.getAmountsByClassifications(selectedCardIds, monthOffset);
+
+        Map<Long, String> titlesByClassifications = cardHistoryQueryRepository.getTitleByClassifications(selectedCardIds, monthOffset);
+
+        return amountsByClassifications.entrySet().stream()
+                .map(longIntegerEntry -> {
+                    Long classificationId = longIntegerEntry.getKey();
+                    Integer amountByClassification = longIntegerEntry.getValue();
+                    double percent =  totalAmountBySelectedCards > 0 ? (double)amountByClassification / totalAmountBySelectedCards * 100 : 0;
+
+                    String title = titlesByClassifications.get(classificationId);
+
+                    return new AnalyzedResponse(classificationId, title, percent);
+
+                }).toList();
     }
 }
