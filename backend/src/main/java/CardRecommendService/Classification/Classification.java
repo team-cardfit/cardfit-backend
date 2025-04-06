@@ -3,7 +3,9 @@ package CardRecommendService.Classification;
 import CardRecommendService.cardHistory.CardHistory;
 import jakarta.persistence.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 public class Classification {
@@ -14,6 +16,7 @@ public class Classification {
 
     private String uuid;
 
+    @Column(nullable = false)
     private String title;
 
     @OneToMany(mappedBy = "classification")
@@ -48,5 +51,14 @@ public class Classification {
 
     public String getUuid() {
         return uuid;
+    }
+
+
+    public Map<Long, String> getClassificationTitle(Long classificationId){
+        HashMap<Long, String> idAndTitle = new HashMap<>();
+
+        idAndTitle.put(id, getTitle());
+
+        return idAndTitle;
     }
 }

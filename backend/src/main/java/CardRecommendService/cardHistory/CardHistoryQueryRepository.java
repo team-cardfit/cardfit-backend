@@ -12,6 +12,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 public class CardHistoryQueryRepository {
@@ -117,6 +119,65 @@ public class CardHistoryQueryRepository {
 
         return content;
     }
+
+    public Map<Long, Integer> getAmountsByClassifications(List<Long>memberCardIds, int monthOffset){
+
+        return queryFactory
+                .select(qCardHistory.classification.id, qCardHistory.amount.sum())
+                .from(qCardHistory)
+                .where(qCardHistory.memberCard.id.in(memberCardIds)
+                        .and(queryConditions(monthOffset)))
+                .groupBy(qCardHistory.classification.id)
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(
+                        tuple -> tuple.get(0, Long.class),
+                        tuple -> {
+
+                            Integer amount = tuple.get(1, Integer.class);
+                            return amount != null ? amount : 0;
+                        }
+                ));
+    }
+
+
+    public Map<Long, String> getTitleByClassifications(List<Long> memberCardIds, int monthOffset){
+
+        return queryFactory
+                .select(qCardHistory.classification.id, qCardHistory.classification.title)
+                .from(qCardHistory)
+                .where(qCardHistory.memberCard.id.in(memberCardIds)
+                        .and(queryConditions(monthOffset)))
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(
+                        tuple -> tuple.get(0, Long.class),
+                        tuple -> {
+
+                            String title = tuple.get(1, String.class);
+                            return title != null ? title : "-";
+
+                        }
+                ));
+    }
+
+
+//        int memberCardsTotalAmount = getMemberCardsTotalAmount(memberCardIds, monthOffset);
+//
+//        cardHistories
+//                .stream().map(cardHistory -> {
+//
+//            int totalAmount = getMemberCardsTotalAmount(memberCardIds, monthOffset);
+//            Integer amountByClassification = getMemberCardsTotalAmountByClassification(memberCardIds, monthOffset, cardHistory.getId());
+//
+//            double percent = memberCardsTotalAmount > 0 ? (amountByClassification / (double) totalAmount ) * 100 : 0;
+//
+//            return new AnalyzedResponse(cardHistory.getId(),
+//                    cardHistory.getClassification().getTitle(),
+//                    percent);
+//
+//        }).toList();
+
 
     public Integer getMemberCardsTotalAmountByClassification(
             List<Long> memberCardIds,

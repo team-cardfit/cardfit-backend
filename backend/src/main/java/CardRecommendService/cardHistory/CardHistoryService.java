@@ -179,4 +179,26 @@ public class CardHistoryService {
 
         return new UpdateClassificationResponse(request.classificationId());
     }
+
+    //page07. 모든 분류 조회하기
+    public List<AnalyzedResponse> CardHistoriesAndAnalyzed (List<Long> selectedCardIds, int monthOffset){
+
+        int totalAmountBySelectedCards = cardHistoryQueryRepository.getMemberCardsTotalAmount(selectedCardIds, monthOffset);
+
+        Map<Long, Integer> amountsByClassifications = cardHistoryQueryRepository.getAmountsByClassifications(selectedCardIds, monthOffset);
+
+        Map<Long, String> titlesByClassifications = cardHistoryQueryRepository.getTitleByClassifications(selectedCardIds, monthOffset);
+
+        return amountsByClassifications.entrySet().stream()
+                .map(longIntegerEntry -> {
+                    Long classificationId = longIntegerEntry.getKey();
+                    Integer amountByClassification = longIntegerEntry.getValue();
+                    double percent =  totalAmountBySelectedCards > 0 ? (double)amountByClassification / totalAmountBySelectedCards * 100 : 0;
+
+                    String title = titlesByClassifications.get(classificationId);
+
+                    return new AnalyzedResponse(classificationId, title, percent);
+
+                }).toList();
+    }
 }

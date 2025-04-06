@@ -1,5 +1,7 @@
 package CardRecommendService.Classification;
 
+import CardRecommendService.cardHistory.CardHistory;
+import CardRecommendService.cardHistory.CardHistoryQueryRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -10,9 +12,11 @@ import java.util.List;
 public class ClassificationService {
 
     private final ClassificationRepository classificationRepository;
+    private final CardHistoryQueryRepository cardHistoryQueryRepository;
 
-    public ClassificationService(ClassificationRepository classificationRepository) {
+    public ClassificationService(ClassificationRepository classificationRepository, CardHistoryQueryRepository cardHistoryQueryRepository) {
         this.classificationRepository = classificationRepository;
+        this.cardHistoryQueryRepository = cardHistoryQueryRepository;
     }
 
     @Transactional
@@ -24,7 +28,8 @@ public class ClassificationService {
 
         classificationRepository.save(classification);
 
-        return new ClassificationCreateResponse(classification.getTitle(),
+        return new ClassificationCreateResponse(classification.getId(),
+                classification.getTitle(),
                 classification.getUuid());
     }
 
@@ -50,4 +55,6 @@ public class ClassificationService {
 
         classificationRepository.deleteById(classificationId);
     }
+
+
 }
