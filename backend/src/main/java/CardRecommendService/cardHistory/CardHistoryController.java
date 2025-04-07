@@ -23,10 +23,10 @@ public class CardHistoryController {
     @GetMapping("/membercards/histories/selected")
     public CardHistorySelectedResponse getSelectedMemberCards(@RequestParam String selectedCardIds,
                                                   @RequestParam(required = false, defaultValue = "1") Integer monthOffset,
-                                                  @RequestParam(defaultValue = "1") int page,
+                                                  @RequestParam(defaultValue = "1") int currentPage,
                                                   @RequestParam(defaultValue = "13") int size) {
 
-        Pageable pageable = PageRequest.of(page - 1, size);
+        Pageable pageable = PageRequest.of(currentPage - 1, size);
 
         List<Long> ids = Arrays.stream(selectedCardIds.split(","))
                 .map(Long::parseLong)

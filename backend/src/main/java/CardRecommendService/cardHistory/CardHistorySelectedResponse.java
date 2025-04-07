@@ -7,5 +7,6 @@ public record CardHistorySelectedResponse(List<CardHistoryResponse> cardHistoryR
                                           LocalDate startDate,
                                           LocalDate endDate,
                                           Integer totalCost,
-                                          Paging page) {
+                                          Paging page
+) {
 }
