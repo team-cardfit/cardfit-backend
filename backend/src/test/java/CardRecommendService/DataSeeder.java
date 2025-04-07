@@ -2,8 +2,6 @@ package CardRecommendService;
 
 import CardRecommendService.card.Card;
 import CardRecommendService.card.CardRepository;
-import CardRecommendService.cardBenefits.CardBenefits;
-import CardRecommendService.cardBenefits.CardBenefitsRepository;
 import CardRecommendService.cardHistory.CardHistory;
 import CardRecommendService.cardHistory.CardHistoryRepository;
 import CardRecommendService.cardHistory.Category;
@@ -14,20 +12,16 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Service
 public class DataSeeder {
 
     private final CardRepository cardRepository;
-    private final CardBenefitsRepository cardBenefitsRepository;
     private final CardHistoryRepository cardHistoryRepository;
     private final MemberCardRepository memberCardRepository;
 
-    public DataSeeder(CardRepository cardRepository, CardBenefitsRepository cardBenefitsRepository, CardHistoryRepository cardHistoryRepository, MemberCardRepository memberCardRepository) {
+    public DataSeeder(CardRepository cardRepository, CardHistoryRepository cardHistoryRepository, MemberCardRepository memberCardRepository) {
         this.cardRepository = cardRepository;
-        this.cardBenefitsRepository = cardBenefitsRepository;
         this.cardHistoryRepository = cardHistoryRepository;
         this.memberCardRepository = memberCardRepository;
     }
