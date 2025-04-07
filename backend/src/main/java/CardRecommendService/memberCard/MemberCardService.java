@@ -42,8 +42,9 @@ public class MemberCardService {
 
     // 03. 분석카드 목록
     // 선택된 카드 아이디 리스트로 카드 정보 조회 (MemberCardService)
-    public List<CardBasicInfoResponse> selectCardsByIds(List<Long> memberCardId) {
-        List<MemberCard> memberCards = memberCardRepository.findAllByIdIn(memberCardId);
+    public List<CardBasicInfoResponse> selectCardsByIds(List<Long> memberCardId, String uuid) {
+        // 현재 사용자 uuid와 선택한 카드 id 목록이 모두 일치하는 경우에만 가져옴
+        List<MemberCard> memberCards = memberCardRepository.findAllByIdInAndUuid(memberCardId, uuid);
 
         return memberCards.stream()
                 .map(memberCard -> new CardBasicInfoResponse(
@@ -59,14 +60,20 @@ public class MemberCardService {
     }
 
     // 멤버 카드와 결제 내역을 조회, 결제 내역을 월 단위로 필터링
-    public DailyCardHistoryPageResponse getCardsHistories(List<Long> memberCardsId, Integer monthOffset, int page, int size) {
+    public DailyCardHistoryPageResponse getCardsHistories(String uuid, List<Long> memberCardsId, Integer monthOffset, int page, int size) {
+        // 현재 사용자(uuid)에 해당하는 카드만 필터링
+        List<MemberCard> validMemberCards = memberCardRepository.findAllByIdInAndUuid(memberCardsId, uuid);
+        List<Long> validMemberCardIds = validMemberCards.stream()
+                .map(MemberCard::getId)
+                .collect(Collectors.toList());
 
+        // validMemberCardIds를 기준으로 결제 내역 조회
         List<CardHistory> cardHistories = cardHistoryQueryRepository.oderByPaymentDateTimeAndPaging(
-                memberCardsId, monthOffset, page, size);
+                validMemberCardIds, monthOffset, page, size);
 
-        int totalCount = cardHistoryQueryRepository.getTotalCount(memberCardsId, monthOffset);
+        int totalCount = cardHistoryQueryRepository.getTotalCount(validMemberCardIds, monthOffset);
 
-        //CardHistory -> CardHistoryResponse 변환
+        // CardHistory -> CardHistoryResponse 변환
         List<CardHistoryResponse> responses = cardHistories.stream()
                 .map(cardHistory -> new CardHistoryResponse(
                         cardHistory.getMemberCard().getCard().getCardName(),
@@ -79,7 +86,7 @@ public class MemberCardService {
                 ))
                 .toList();
 
-        //일별 그룹화 + totalAmount 계산
+        // 일별 그룹화 및 총 결제 금액 계산
         List<DailyCardHistoryResponse> dailyCardHistoryResponses = responses.stream()
                 .collect(Collectors.groupingBy(
                         response -> response.paymentDatetime().toLocalDate(), // 날짜별 그룹화
@@ -96,7 +103,7 @@ public class MemberCardService {
                 ))
                 .toList();
 
-        Integer totalCost = cardHistoryQueryRepository.getMemberCardsTotalAmount(memberCardsId, monthOffset);
+        Integer totalCost = cardHistoryQueryRepository.getMemberCardsTotalAmount(validMemberCardIds, monthOffset);
         int totalPages = (totalCount + size - 1) / size;
 
         return new DailyCardHistoryPageResponse(dailyCardHistoryResponses,
