@@ -2,7 +2,8 @@ package CardRecommendService.card;
 
 import CardRecommendService.cardHistory.CardHistoryQueryRepository;
 import CardRecommendService.cardHistory.Category;
-import jakarta.persistence.criteria.CriteriaBuilder;
+import CardRecommendService.memberCard.MemberCard;
+import CardRecommendService.memberCard.MemberCardRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -14,37 +15,122 @@ import java.util.stream.Stream;
 public class CardService {
 
     private final CardRepository cardRepository;
+    private final MemberCardRepository memberCardRepository;
     private final CardHistoryQueryRepository queryRepository;
     private final QCardRepository qCardRepository;
 
-
-    public CardService(CardRepository cardRepository, List<Card> allCards, CardHistoryQueryRepository queryRepository, QCardRepository qCardRepository) {
+    public CardService(CardRepository cardRepository,
+                       MemberCardRepository memberCardRepository,
+                       CardHistoryQueryRepository queryRepository,
+                       QCardRepository qCardRepository) {
         this.cardRepository = cardRepository;
+        this.memberCardRepository = memberCardRepository;
         this.queryRepository = queryRepository;
         this.qCardRepository = qCardRepository;
     }
 
-    //모든 카드 리스트를 목록으로 조회
     @Transactional
     public List<CardResponse> getAllCards() {
-        List<Card> cards = cardRepository.findAll();
-
-        return cards.stream()
-                .map(card -> new CardResponse(
-                        card.getCardCorp(),
-                        card.getCardName(),
-                        card.getAnnualFee()
-                ))
+        return cardRepository.findAll().stream()
+                .map(card -> new CardResponse(card.getCardCorp(), card.getCardName(), card.getAnnualFee()))
                 .collect(Collectors.toList());
     }
 
+    // uuid와 cardId를 통해 해당 카드가 로그인 사용자 소유인지 확인 후 상세 정보를 반환
+    public CardDetailResponse getCardDetailByCardId(String uuid, Long cardId) {
+        // MemberCardRepository의 메서드 반환 타입을 Optional<MemberCard>로 수정했다고 가정합니다.
+        MemberCard memberCard = memberCardRepository.findFirstByCard_IdAndUuid(cardId, uuid)
+                .orElseThrow(() -> new IllegalArgumentException("해당 카드가 사용자의 카드가 아닙니다."));
+        Card card = memberCard.getCard();
+        return mapToCardDetailResponse(card);
+    }
 
-    //카드 상세 조회
-    public CardDetailResponse getCardDetailByCardId(Long cardId) {
+    // 선택된 카테고리 기반 추천 (사용자 uuid를 받음)
+    public CardRecommendResponse getRecommendCards(String uuid, Set<Category> selectedCategories, int minAnnualFee, int maxAnnualFee) {
+        // 추가 검증 로직이 필요한 경우 여기에 구현 가능
+        List<Card> filteredCards = cardRepository.findByAnnualFeeBetween(minAnnualFee, maxAnnualFee);
+        List<Long> matchedCardIds = filteredCards.stream()
+                .map(card -> new long[]{card.getId(), countMatchedCategories(card, selectedCategories)})
+                .sorted((a, b) -> Long.compare(b[1], a[1]))
+                .limit(5)
+                .map(arr -> (Long) arr[0])
+                .collect(Collectors.toList());
+        List<Card> recommendedCards = cardRepository.findTop3ByIdIn(matchedCardIds);
+        List<CardDetailResponse> details = recommendedCards.stream()
+                .map(this::mapToCardDetailResponse)
+                .collect(Collectors.toList());
+        return new CardRecommendResponse(details, selectedCategories);
+    }
 
-        Card card = cardRepository.findById(cardId)
-                .orElseThrow(() -> new IllegalArgumentException("없는 카드"));
+    // 회원 보유 카드 기반 추천 – 동적 쿼리로 기본 top 카테고리 추출
+    public List<CardDetailResponse> getRecommendedCardsInfo(String uuid, List<Long> cardIds,
+                                                            int minAnnualFee, int maxAnnualFee, int monthOffset) {
+        // 사용자가 소유한 카드 목록(연관된 Card의 id)을 검증
+        List<Long> validCardIds = memberCardRepository.findAllByCard_IdInAndUuid(cardIds, uuid)
+                .stream()
+                .map(memberCard -> memberCard.getCard().getId())
+                .collect(Collectors.toList());
+        if (validCardIds.isEmpty()) {
+            throw new IllegalArgumentException("사용자의 카드 정보가 없습니다.");
+        }
+        Set<Category> categories = queryRepository.getTop5CategoriesList(validCardIds, monthOffset);
+        return getRecommendedCardsInfoInternal(validCardIds, categories, minAnnualFee, maxAnnualFee);
+    }
 
+    // 회원 보유 카드 + 외부 제공 카테고리 기반 추천
+    public List<CardDetailResponse> getRecommendedCardsInfo(String uuid, List<Long> cardIds,
+                                                            List<Category> providedCategories,
+                                                            int minAnnualFee, int maxAnnualFee, int monthOffset) {
+        List<Long> validCardIds = memberCardRepository.findAllByCard_IdInAndUuid(cardIds, uuid)
+                .stream()
+                .map(memberCard -> memberCard.getCard().getId())
+                .collect(Collectors.toList());
+        if (validCardIds.isEmpty()) {
+            throw new IllegalArgumentException("사용자의 카드 정보가 없습니다.");
+        }
+        Set<Category> categories = (providedCategories == null || providedCategories.isEmpty())
+                ? queryRepository.getTop5CategoriesList(validCardIds, monthOffset)
+                : new HashSet<>(providedCategories);
+        return getRecommendedCardsInfoInternal(validCardIds, categories, minAnnualFee, maxAnnualFee);
+    }
+
+    private List<CardDetailResponse> getRecommendedCardsInfoInternal(List<Long> validCardIds,
+                                                                     Set<Category> categories,
+                                                                     int minAnnualFee,
+                                                                     int maxAnnualFee) {
+        Map<Long, Integer> cardMatchCounts = getCardMatchCounts(categories, minAnnualFee, maxAnnualFee);
+        List<Long> topCardIds = cardMatchCounts.entrySet().stream()
+                .sorted(Map.Entry.<Long, Integer>comparingByValue().reversed())
+                .limit(3)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+        List<Card> topCards = cardRepository.findAllById(topCardIds);
+        return topCards.stream()
+                .map(this::mapToCardDetailResponse)
+                .collect(Collectors.toList());
+    }
+
+    private Map<Long, Integer> getCardMatchCounts(Set<Category> categories, int minAnnualFee, int maxAnnualFee) {
+        List<Card> cards = qCardRepository.findCardsMatchingTopCategoriesAndAnnualFee(categories, minAnnualFee, maxAnnualFee);
+        return cards.stream()
+                .collect(Collectors.toMap(Card::getId,
+                        card -> {
+                            int matchCount = 0;
+                            if (categories.contains(card.getStore1())) matchCount++;
+                            if (categories.contains(card.getStore2())) matchCount++;
+                            if (categories.contains(card.getStore3())) matchCount++;
+                            return matchCount;
+                        }));
+    }
+
+    private int countMatchedCategories(Card card, Set<Category> selectedCategories) {
+        return (int) Stream.of(card.getStore1(), card.getStore2(), card.getStore3())
+                .filter(Objects::nonNull)
+                .filter(selectedCategories::contains)
+                .count();
+    }
+
+    private CardDetailResponse mapToCardDetailResponse(Card card) {
         return new CardDetailResponse(
                 card.getCardName(),
                 card.getCardCorp(),
@@ -56,115 +142,6 @@ public class CardService {
                 card.getDiscount2(),
                 card.getStore3(),
                 card.getDiscount3()
-
         );
     }
-
-
-    //카드 추천 로직
-    public CardRecommendResponse getRecommendCards(Set<Category> selectedCategories, int minAnnualFee, int maxAnnualFee) {
-        // 연회비 필터링을 적용하여 모든 카드 조회
-        List<Card> filteredCards = cardRepository.findByAnnualFeeBetween(minAnnualFee, maxAnnualFee);
-
-        // 각 카드의 매칭된 카테고리 개수를 계산하여 리스트 생성
-        List<Long> matchedCards = filteredCards.stream()
-                .map(card -> new long[]{card.getId(), countMatchedCategories(card, selectedCategories)})
-                .sorted((a, b) -> Long.compare(b[1], a[1])) // 매칭된 개수 기준으로 내림차순 정렬
-                .limit(5) // 최대 4개 제한
-                .map(id -> (Long) id[0])
-                .collect(Collectors.toList());
-
-        List<Card> top3ByIdIn = cardRepository.findTop3ByIdIn(matchedCards);
-
-        List<CardDetailResponse> list = top3ByIdIn.stream().map(
-                        cards -> new CardDetailResponse(cards.getCardName(),
-                                cards.getCardCorp(),
-                                cards.getImgUrl(),
-                                cards.getAnnualFee(),
-                                cards.getStore1(),
-                                cards.getDiscount1(),
-                                cards.getStore2(),
-                                cards.getDiscount2(),
-                                cards.getStore3(),
-                                cards.getDiscount3()
-                        ))
-                .toList();
-
-        return new CardRecommendResponse(list, selectedCategories);
-    }
-
-    // 카드의 카테고리와 선택한 카테고리 일치 개수 계산
-    private int countMatchedCategories(Card card, Set<Category> selectedCategories) {
-        Set<Category> cardCategories = getCardCategories(card);
-        return (int) cardCategories.stream()
-                .filter(selectedCategories::contains)
-                .count();
-    }
-
-    // 카드에서 카테고리 정보 추출
-    private Set<Category> getCardCategories(Card card) {
-        return Stream.of(card.getStore1(), card.getStore2(), card.getStore3())
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-    }
-
-
-
-    //결제 금액 상위 5개 카테고리와 카드의 카테고리 일치 개수 개산
-    private Map<Long, Integer> recommendedCads(List<Long> memberCardIds,
-                                               int minAnnualFee,
-                                               int maxAnnualFee,
-                                               int monthOffset){
-
-        Set<Category> categories = queryRepository.getTop5CategoriesList(memberCardIds, monthOffset);
-
-        List<Card> cardsMatchingTopCategories = qCardRepository.findCardsMatchingTopCategoriesAndAnnualFee(categories, minAnnualFee, maxAnnualFee);
-
-        return cardsMatchingTopCategories.stream()
-                .collect(Collectors.toMap(Card::getId,
-                        card -> {
-                            int matchCount = 0;
-                            if (categories.contains(card.getStore1())) matchCount++;
-                            if (categories.contains(card.getStore2())) matchCount++;
-                            if (categories.contains(card.getStore3())) matchCount++;
-                            return matchCount;
-                        }
-                        ));
-    };
-
-    //카드추천 로직
-    public List<CardDetailResponse> getRecommendedCardsInfo(List<Long> memberCardIds,
-                                                            int minAnnualFee,
-                                                            int maxAnnualFee,
-                                                            int monthOffset){
-
-        Map<Long, Integer> cardIdAndMatchCategoriesCountMap = recommendedCads(memberCardIds, minAnnualFee, maxAnnualFee, monthOffset);
-
-        List<Long> top3CardIds = cardIdAndMatchCategoriesCountMap.entrySet()
-                .stream()
-                .sorted(Map.Entry.<Long, Integer>comparingByValue().reversed())
-                .limit(3)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-
-        List<Card> top3CardsInfo = cardRepository.findAllById(top3CardIds);
-
-        return top3CardsInfo.stream().map(card ->
-                new CardDetailResponse(
-                        card.getCardName(),
-                        card.getCardCorp(),
-                        card.getImgUrl(),
-                        card.getAnnualFee(),
-                        card.getStore1(),
-                        card.getDiscount1(),
-                        card.getStore2(),
-                        card.getDiscount2(),
-                        card.getStore3(),
-                        card.getDiscount3())
-        ).toList();
-    }
-
-
 }
-
-
