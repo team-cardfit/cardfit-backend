@@ -35,25 +35,18 @@ public class CardHistoryService {
     // 특정 사용자의 선택한 카드들의 기간별 사용 내역 조회 (uuid 추가)
     public CardHistorySelectedResponse getSelected(String uuid, List<Long> selectedCardIds, Integer monthOffset, Pageable pageable) {
         // 먼저, 선택된 카드들이 해당 사용자의 소유인지 검증
-        List<MemberCard> userMemberCards = memberCardRepository.findByUuid(uuid);
-        Set<Long> userCardIds = userMemberCards.stream()
-                .map(mc -> mc.getCard().getId())
-                .collect(Collectors.toSet());
+        List<Long> userMemberCardIds = memberCardRepository.findByUuid(uuid)
+                .stream()
+                .filter(memberCard -> selectedCardIds.contains(memberCard.getId()))
+                .map(memberCard -> memberCard.getId())
+                .toList();
 
-        // 선택된 카드 id 중 사용자 소유가 아닌 경우 필터링
-        List<Long> validCardIds = selectedCardIds.stream()
-                .filter(userCardIds::contains)
-                .collect(Collectors.toList());
-
-        if (validCardIds.isEmpty()) {
-            throw new IllegalArgumentException("해당 사용자의 카드 정보가 없습니다.");
-        }
 
         Page<CardHistory> selectedMemberCards =
-                cardHistoryQueryRepository.findSelectedByMemberIdAndPeriod(validCardIds, monthOffset, pageable);
+                cardHistoryQueryRepository.findSelectedByMemberIdAndPeriod(userMemberCardIds, monthOffset, pageable);
 
         Integer memberCardsTotalCost =
-                cardHistoryQueryRepository.getMemberCardsTotalAmount(validCardIds, monthOffset);
+                cardHistoryQueryRepository.getMemberCardsTotalAmount(userMemberCardIds, monthOffset);
 
         List<CardHistoryResponse> cardHistoryResponses = selectedMemberCards.getContent()
                 .stream()
@@ -125,27 +118,21 @@ public class CardHistoryService {
     // 분류 조건을 포함한 결제 내역 조회 (uuid 추가)
     public CardHistorySelectedResponseWithPercentResponse getSelected(String uuid, List<Long> selectedCardIds, Integer monthOffset, Long classificationId) {
         // 사용자 소유 카드 검증
-        List<MemberCard> userMemberCards = memberCardRepository.findByUuid(uuid);
-        Set<Long> userCardIds = userMemberCards.stream()
-                .map(mc -> mc.getCard().getId())
-                .collect(Collectors.toSet());
+        List<Long> userMemberCardIds = memberCardRepository.findByUuid(uuid)
+                .stream()
+                .filter(memberCard -> selectedCardIds.contains(memberCard.getId()))
+                .map(memberCard -> memberCard.getId())
+                .toList();
 
-        List<Long> validCardIds = selectedCardIds.stream()
-                .filter(userCardIds::contains)
-                .collect(Collectors.toList());
-
-        if (validCardIds.isEmpty()) {
-            throw new IllegalArgumentException("해당 사용자의 카드 정보가 없습니다.");
-        }
 
         List<CardHistory> selectedMemberCards =
-                cardHistoryQueryRepository.findSelectedByMemberIdAndPeriodAndClassification(validCardIds, monthOffset, classificationId);
+                cardHistoryQueryRepository.findSelectedByMemberIdAndPeriodAndClassification(userMemberCardIds, monthOffset, classificationId);
 
         Integer classificationTotalCost =
-                cardHistoryQueryRepository.getMemberCardsTotalAmountByClassification(validCardIds, monthOffset, classificationId);
+                cardHistoryQueryRepository.getMemberCardsTotalAmountByClassification(userMemberCardIds, monthOffset, classificationId);
 
         Integer overallTotalCost =
-                cardHistoryQueryRepository.getMemberCardsTotalAmount(validCardIds, monthOffset);
+                cardHistoryQueryRepository.getMemberCardsTotalAmount(userMemberCardIds, monthOffset);
 
         double percent = overallTotalCost > 0 ? (classificationTotalCost / (double) overallTotalCost) * 100 : 0;
 
@@ -200,20 +187,17 @@ public class CardHistoryService {
     // 모든 분류(분석) 조회하기 (uuid 추가)
     public List<AnalyzedResponse> cardHistoriesAnalyzedByClassifications(String uuid, List<Long> selectedCardIds, int monthOffset) {
         // 사용자 소유 카드 검증
-        List<MemberCard> userMemberCards = memberCardRepository.findByUuid(uuid);
-        Set<Long> userCardIds = userMemberCards.stream()
-                .map(mc -> mc.getCard().getId())
-                .collect(Collectors.toSet());
+        List<Long> userMemberCardIds = memberCardRepository.findByUuid(uuid)
+                .stream()
+                .filter(memberCard -> selectedCardIds.contains(memberCard.getId()))
+                .map(memberCard -> memberCard.getId())
+                .toList();
 
-        List<Long> validCardIds = selectedCardIds.stream()
-                .filter(userCardIds::contains)
-                .collect(Collectors.toList());
+        int totalAmountBySelectedCards = cardHistoryQueryRepository.getMemberCardsTotalAmount(userMemberCardIds, monthOffset);
 
-        int totalAmountBySelectedCards = cardHistoryQueryRepository.getMemberCardsTotalAmount(validCardIds, monthOffset);
+        Map<Long, Integer> amountsByClassifications = cardHistoryQueryRepository.getAmountsByClassifications(userMemberCardIds, monthOffset);
 
-        Map<Long, Integer> amountsByClassifications = cardHistoryQueryRepository.getAmountsByClassifications(validCardIds, monthOffset);
-
-        Map<Long, String> titlesByClassifications = cardHistoryQueryRepository.getTitleByClassifications(validCardIds, monthOffset);
+        Map<Long, String> titlesByClassifications = cardHistoryQueryRepository.getTitleByClassifications(userMemberCardIds, monthOffset);
 
         return amountsByClassifications.entrySet().stream()
                 .map(entry -> {

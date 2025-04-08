@@ -28,7 +28,7 @@ public class CardHistory {
     @Column(nullable = false)
     private Category category;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private MemberCard memberCard;
 
     private String uuid;
