@@ -186,24 +186,6 @@ public class CardHistoryQueryRepository {
 
     }
 
-
-//        int memberCardsTotalAmount = getMemberCardsTotalAmount(memberCardIds, monthOffset);
-//
-//        cardHistories
-//                .stream().map(cardHistory -> {
-//
-//            int totalAmount = getMemberCardsTotalAmount(memberCardIds, monthOffset);
-//            Integer amountByClassification = getMemberCardsTotalAmountByClassification(memberCardIds, monthOffset, cardHistory.getId());
-//
-//            double percent = memberCardsTotalAmount > 0 ? (amountByClassification / (double) totalAmount ) * 100 : 0;
-//
-//            return new AnalyzedResponse(cardHistory.getId(),
-//                    cardHistory.getClassification().getTitle(),
-//                    percent);
-//
-//        }).toList();
-
-
     public Integer getMemberCardsTotalAmountByClassification(
             List<Long> memberCardIds,
             Integer monthOffset,
