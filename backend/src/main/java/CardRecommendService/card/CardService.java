@@ -36,62 +36,66 @@ public class CardService {
                 .collect(Collectors.toList());
     }
 
-    // uuid와 cardId를 통해 해당 카드가 로그인 사용자 소유인지 확인 후 상세 정보를 반환
-    public CardDetailResponse getCardDetailByCardId(String uuid, Long cardId) {
-        // MemberCardRepository의 메서드 반환 타입을 Optional<MemberCard>로 수정했다고 가정합니다.
-        MemberCard memberCard = memberCardRepository.findFirstByCard_IdAndUuid(cardId, uuid)
-                .orElseThrow(() -> new IllegalArgumentException("해당 카드가 사용자의 카드가 아닙니다."));
-        Card card = memberCard.getCard();
-        return mapToCardDetailResponse(card);
-    }
-
-    // 선택된 카테고리 기반 추천 (사용자 uuid를 받음)
-    public CardRecommendResponse getRecommendCards(String uuid, Set<Category> selectedCategories, int minAnnualFee, int maxAnnualFee) {
-        // 추가 검증 로직이 필요한 경우 여기에 구현 가능
-        List<Card> filteredCards = cardRepository.findByAnnualFeeBetween(minAnnualFee, maxAnnualFee);
-        List<Long> matchedCardIds = filteredCards.stream()
-                .map(card -> new long[]{card.getId(), countMatchedCategories(card, selectedCategories)})
-                .sorted((a, b) -> Long.compare(b[1], a[1]))
-                .limit(5)
-                .map(arr -> (Long) arr[0])
-                .collect(Collectors.toList());
-        List<Card> recommendedCards = cardRepository.findTop3ByIdIn(matchedCardIds);
-        List<CardDetailResponse> details = recommendedCards.stream()
-                .map(this::mapToCardDetailResponse)
-                .collect(Collectors.toList());
-        return new CardRecommendResponse(details, selectedCategories);
-    }
+//    // uuid와 cardId를 통해 해당 카드가 로그인 사용자 소유인지 확인 후 상세 정보를 반환
+//    public CardDetailResponse getCardDetailByCardId(String uuid, Long cardId) {
+//        // MemberCardRepository의 메서드 반환 타입을 Optional<MemberCard>로 수정했다고 가정합니다.
+//        MemberCard memberCard = memberCardRepository.findFirstByCard_IdAndUuid(cardId, uuid)
+//                .orElseThrow(() -> new IllegalArgumentException("해당 카드가 사용자의 카드가 아닙니다."));
+//        Card card = memberCard.getCard();
+//        return mapToCardDetailResponse(card);
+//    }
+//
+//    // 선택된 카테고리 기반 추천 (사용자 uuid를 받음)
+//    public CardRecommendResponse getRecommendCards(String uuid, Set<Category> selectedCategories, int minAnnualFee, int maxAnnualFee) {
+//        // 추가 검증 로직이 필요한 경우 여기에 구현 가능
+//        List<Card> filteredCards = cardRepository.findByAnnualFeeBetween(minAnnualFee, maxAnnualFee);
+//        List<Long> matchedCardIds = filteredCards.stream()
+//                .map(card -> new long[]{card.getId(), countMatchedCategories(card, selectedCategories)})
+//                .sorted((a, b) -> Long.compare(b[1], a[1]))
+//                .limit(5)
+//                .map(arr -> (Long) arr[0])
+//                .collect(Collectors.toList());
+//        List<Card> recommendedCards = cardRepository.findTop3ByIdIn(matchedCardIds);
+//        List<CardDetailResponse> details = recommendedCards.stream()
+//                .map(this::mapToCardDetailResponse)
+//                .collect(Collectors.toList());
+//        return new CardRecommendResponse(details, selectedCategories);
+//    }
 
     // 회원 보유 카드 기반 추천 – 동적 쿼리로 기본 top 카테고리 추출
-    public List<CardDetailResponse> getRecommendedCardsInfo(String uuid, List<Long> cardIds,
+    public List<CardDetailResponse> getRecommendedCardsInfo(String uuid, List<Long> selectedCardIds,
                                                             int minAnnualFee, int maxAnnualFee, int monthOffset) {
         // 사용자가 소유한 카드 목록(연관된 Card의 id)을 검증
-        List<Long> validCardIds = memberCardRepository.findAllByCard_IdInAndUuid(cardIds, uuid)
+        List<Long> userMemberCardIds = memberCardRepository.findByUuid(uuid)
                 .stream()
-                .map(memberCard -> memberCard.getCard().getId())
-                .collect(Collectors.toList());
-        if (validCardIds.isEmpty()) {
+                .filter(memberCard -> selectedCardIds.contains(memberCard.getId()))
+                .map(memberCard -> memberCard.getId())
+                .toList();
+
+        if (selectedCardIds.isEmpty()) {
             throw new IllegalArgumentException("사용자의 카드 정보가 없습니다.");
         }
-        Set<Category> categories = queryRepository.getTop5CategoriesList(validCardIds, monthOffset);
-        return getRecommendedCardsInfoInternal(validCardIds, categories, minAnnualFee, maxAnnualFee);
+        Set<Category> categories = queryRepository.getTop5CategoriesList(userMemberCardIds, monthOffset);
+        return getRecommendedCardsInfoInternal(userMemberCardIds, categories, minAnnualFee, maxAnnualFee);
     }
 
     // 회원 보유 카드 + 외부 제공 카테고리 기반 추천
-    public List<CardDetailResponse> getRecommendedCardsInfo(String uuid, List<Long> cardIds,
+    public List<CardDetailResponse> getRecommendedCardsInfo(String uuid,List<Long> selectedCardIds,
                                                             List<Category> providedCategories,
                                                             int minAnnualFee, int maxAnnualFee, int monthOffset) {
-        List<Long> validCardIds = memberCardRepository.findAllByCard_IdInAndUuid(cardIds, uuid)
+        List<Long> userMemberCardIds = memberCardRepository.findByUuid(uuid)
                 .stream()
-                .map(memberCard -> memberCard.getCard().getId())
-                .collect(Collectors.toList());
-        if (validCardIds.isEmpty()) {
+                .filter(memberCard -> selectedCardIds.contains(memberCard.getId()))
+                .map(memberCard -> memberCard.getId())
+                .toList();
+
+        if (userMemberCardIds.isEmpty()) {
             throw new IllegalArgumentException("사용자의 카드 정보가 없습니다.");
         }
         Set<Category> categories = (providedCategories == null || providedCategories.isEmpty())
-                ? queryRepository.getTop5CategoriesList(validCardIds, monthOffset)
+                ? queryRepository.getTop5CategoriesList(userMemberCardIds, monthOffset)
                 : new HashSet<>(providedCategories);
-        return getRecommendedCardsInfoInternal(validCardIds, categories, minAnnualFee, maxAnnualFee);
+        return getRecommendedCardsInfoInternal(userMemberCardIds, categories, minAnnualFee, maxAnnualFee);
     }
 
     private List<CardDetailResponse> getRecommendedCardsInfoInternal(List<Long> validCardIds,

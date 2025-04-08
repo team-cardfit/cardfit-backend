@@ -16,7 +16,7 @@ public class MemberCard {
 
     private String cardNumber;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Card card;
 
     @OneToMany(mappedBy = "memberCard")
