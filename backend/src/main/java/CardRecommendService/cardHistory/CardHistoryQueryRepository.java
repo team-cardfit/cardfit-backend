@@ -1,6 +1,7 @@
 
 package CardRecommendService.cardHistory;
 
+import com.querydsl.core.QueryFactory;
 import com.querydsl.core.Tuple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -66,6 +67,17 @@ public class CardHistoryQueryRepository {
                 .where(qCardHistory.memberCard.id.in(memberCardId).and(queryConditions(monthOffset)))
                 .fetch()
                 .size();
+    }
+
+    public List<Integer> getTotalAmount (List<Long>memberCardIds, Integer monthOffset){
+        List<Integer> totalAmountByMemberCard = queryFactory
+                .select(qCardHistory.amount.sum())
+                .from(qCardHistory)
+                .where(qCardHistory.memberCard.id.in(memberCardIds)
+                        .and(queryConditions(monthOffset)))
+                .fetch();
+
+        return totalAmountByMemberCard;
     }
 
 

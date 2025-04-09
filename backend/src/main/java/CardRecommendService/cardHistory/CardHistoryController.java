@@ -26,7 +26,7 @@ public class CardHistoryController {
             @RequestParam String selectedCardIds,
             @RequestParam(required = false, defaultValue = "1") Integer monthOffset,
             @RequestParam(defaultValue = "1") int currentPage,
-            @RequestParam(defaultValue = "13") int size) {
+            @RequestParam(defaultValue = "150") int size) {
 
         Pageable pageable = PageRequest.of(currentPage - 1, size);
 
