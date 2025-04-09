@@ -5,6 +5,9 @@ import CardRecommendService.cardHistory.*;
 
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,9 +45,13 @@ public class MemberCardService {
 
     // 03. 분석카드 목록
     // 선택된 카드 아이디 리스트로 카드 정보 조회 (MemberCardService)
-    public List<CardBasicInfoResponse> selectCardsByIds(List<Long> memberCardId, String uuid) {
+    public List<CardBasicInfoResponse> selectCardsByIds(List<Long> memberCardId, String uuid, int monthOffset) {
         // 현재 사용자 uuid와 선택한 카드 id 목록이 모두 일치하는 경우에만 가져옴
         List<MemberCard> memberCards = memberCardRepository.findAllByIdInAndUuid(memberCardId, uuid);
+
+        YearMonth targetMonth = YearMonth.from(LocalDate.now()).minusMonths(monthOffset);
+        LocalDateTime startDate = targetMonth.atDay(1).atStartOfDay();
+        LocalDateTime endDate = targetMonth.atEndOfMonth().atTime(23, 59, 59);
 
         return memberCards.stream()
                 .map(memberCard -> new CardBasicInfoResponse(
@@ -54,7 +61,7 @@ public class MemberCardService {
                         memberCard.getCard().getImgUrl(),
                         memberCard.getId(),
                         memberCard.getCard().getAltTxt(),
-                        memberCard.getCardHistoriesCollection().getTotalCost()
+                        memberCard.getCardHistoriesCollection().getTotalCostByMonth(startDate, endDate) // 월별 총합 계산
                 ))
                 .collect(Collectors.toList());
     }

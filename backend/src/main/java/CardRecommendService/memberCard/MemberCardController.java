@@ -31,13 +31,14 @@ public class MemberCardController {
     // 03. 소비패턴분석카드
     @GetMapping("/membercards")
     public List<CardBasicInfoResponse> selectCardsByIds(@CurrentUserId String uuid,
-                                                        @RequestParam String memberCardIds) {
+                                                        @RequestParam String memberCardIds,
+                                                        @RequestParam(required = false, defaultValue = "1") int monthOffset) {
         List<Long> ids = Arrays.stream(memberCardIds.split(","))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
 
         // MemberCardService에서 선택된 카드들 반환 (uuid 일치하는 카드만 조회)
-        return memberCardService.selectCardsByIds(ids, uuid);
+        return memberCardService.selectCardsByIds(ids, uuid, monthOffset);
     }
 
 

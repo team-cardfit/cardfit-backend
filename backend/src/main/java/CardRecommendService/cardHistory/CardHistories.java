@@ -1,5 +1,6 @@
 package CardRecommendService.cardHistory;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class CardHistories {
@@ -24,4 +25,12 @@ public class CardHistories {
                 .map(CardHistory::getAmount)
                 .reduce(0, Integer::sum);
     }
+
+    public Integer getTotalCostByMonth(LocalDateTime startDate, LocalDateTime endDate) {
+        return cardHistories.stream()
+                .filter(ch -> !ch.getPaymentDatetime().isBefore(startDate) && !ch.getPaymentDatetime().isAfter(endDate))
+                .map(CardHistory::getAmount)
+                .reduce(0, Integer::sum);
+    }
+
 }
