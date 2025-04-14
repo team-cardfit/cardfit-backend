@@ -1,4 +1,4 @@
-package CardRecommendService.cardHistory;
+package CardRecommendService.card;
 
 public enum Category {
     온라인쇼핑,

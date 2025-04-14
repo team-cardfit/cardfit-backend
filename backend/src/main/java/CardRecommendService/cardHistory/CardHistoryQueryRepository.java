@@ -1,13 +1,12 @@
 
 package CardRecommendService.cardHistory;
 
-import com.querydsl.core.QueryFactory;
-import com.querydsl.core.Tuple;
+import CardRecommendService.card.Category;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -26,7 +25,20 @@ public class CardHistoryQueryRepository {
         this.queryFactory = queryFactory;
     }
 
+    public Set<Category> getTop5CategoriesList(List<Long> memberCardIds, int monthOffset){
 
+        return new HashSet<>(
+                queryFactory
+                        .select(qCardHistory.category)
+                        .from(qCardHistory)
+                        .where(qCardHistory.memberCard.id.in(memberCardIds)
+                                .and(queryConditions(monthOffset)))
+                        .groupBy(qCardHistory.category)
+                        .orderBy(qCardHistory.amount.sum().asc())
+                        .limit(5)
+                        .fetch());
+
+    }
 
     public Page<CardHistory> findSelectedByMemberIdAndPeriod(List<Long> memberCardIds, Integer monthOffset, Pageable pageable) {
 
@@ -157,7 +169,6 @@ public class CardHistoryQueryRepository {
                 ));
     }
 
-
     public Map<Long, String> getTitleByClassifications(List<Long> memberCardIds, int monthOffset){
 
         return queryFactory
@@ -180,22 +191,6 @@ public class CardHistoryQueryRepository {
                         LinkedHashMap::new
 
                 ));
-    }
-
-
-    public Set<Category> getTop5CategoriesList(List<Long> memberCardIds, int monthOffset){
-
-        return new HashSet<>(
-                queryFactory
-                .select(qCardHistory.category)
-                .from(qCardHistory)
-                .where(qCardHistory.memberCard.id.in(memberCardIds)
-                        .and(queryConditions(monthOffset)))
-                .groupBy(qCardHistory.category)
-                .orderBy(qCardHistory.amount.sum().asc())
-                .limit(5)
-                .fetch());
-
     }
 
     public Integer getMemberCardsTotalAmountByClassification(
