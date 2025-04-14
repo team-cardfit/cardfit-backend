@@ -1,5 +1,10 @@
 package CardRecommendService.cardHistory;
 
+import CardRecommendService.cardHistory.UpdateClassificationDto.UpdateClassificationRequest;
+import CardRecommendService.cardHistory.UpdateClassificationDto.UpdateClassificationResponse;
+import CardRecommendService.cardHistory.cardHistoryResponse.CardHistorySelectedResponse;
+import CardRecommendService.cardHistory.cardHistoryResponse.CardHistorySelectedResponseWithPercentResponse;
+import CardRecommendService.cardHistory.cardHistoryResponse.CardHistoryWithClassificationResponse;
 import CardRecommendService.loginUtils.CurrentUserId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

@@ -1,8 +1,9 @@
 package CardRecommendService.card;
 
+import CardRecommendService.card.cardResponse.CardDetailResponse;
+import CardRecommendService.card.cardResponse.CardResponse;
 import CardRecommendService.cardHistory.CardHistoryQueryRepository;
 import CardRecommendService.cardHistory.Category;
-import CardRecommendService.memberCard.MemberCard;
 import CardRecommendService.memberCard.MemberCardRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -35,32 +36,6 @@ public class CardService {
                 .map(card -> new CardResponse(card.getCardCorp(), card.getCardName(), card.getAnnualFee()))
                 .collect(Collectors.toList());
     }
-
-//    // uuid와 cardId를 통해 해당 카드가 로그인 사용자 소유인지 확인 후 상세 정보를 반환
-//    public CardDetailResponse getCardDetailByCardId(String uuid, Long cardId) {
-//        // MemberCardRepository의 메서드 반환 타입을 Optional<MemberCard>로 수정했다고 가정합니다.
-//        MemberCard memberCard = memberCardRepository.findFirstByCard_IdAndUuid(cardId, uuid)
-//                .orElseThrow(() -> new IllegalArgumentException("해당 카드가 사용자의 카드가 아닙니다."));
-//        Card card = memberCard.getCard();
-//        return mapToCardDetailResponse(card);
-//    }
-//
-//    // 선택된 카테고리 기반 추천 (사용자 uuid를 받음)
-//    public CardRecommendResponse getRecommendCards(String uuid, Set<Category> selectedCategories, int minAnnualFee, int maxAnnualFee) {
-//        // 추가 검증 로직이 필요한 경우 여기에 구현 가능
-//        List<Card> filteredCards = cardRepository.findByAnnualFeeBetween(minAnnualFee, maxAnnualFee);
-//        List<Long> matchedCardIds = filteredCards.stream()
-//                .map(card -> new long[]{card.getId(), countMatchedCategories(card, selectedCategories)})
-//                .sorted((a, b) -> Long.compare(b[1], a[1]))
-//                .limit(5)
-//                .map(arr -> (Long) arr[0])
-//                .collect(Collectors.toList());
-//        List<Card> recommendedCards = cardRepository.findTop3ByIdIn(matchedCardIds);
-//        List<CardDetailResponse> details = recommendedCards.stream()
-//                .map(this::mapToCardDetailResponse)
-//                .collect(Collectors.toList());
-//        return new CardRecommendResponse(details, selectedCategories);
-//    }
 
     // 회원 보유 카드 기반 추천 – 동적 쿼리로 기본 top 카테고리 추출
     public List<CardDetailResponse> getRecommendedCardsInfo(String uuid, List<Long> selectedCardIds,

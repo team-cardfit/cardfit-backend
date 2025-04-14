@@ -1,8 +1,10 @@
 package CardRecommendService.memberCard;
 
-import CardRecommendService.card.CardBasicInfoResponse;
+
+import CardRecommendService.card.cardResponse.CardBasicInfoResponse;
 import CardRecommendService.cardHistory.*;
 
+import CardRecommendService.cardHistory.cardHistoryResponse.CardHistoryResponse;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -36,7 +38,6 @@ public class MemberCardService {
                             memberCard.getCard().getCardCorp(),
                             memberCard.getCard().getImgUrl(),
                             memberCard.getId(),
-                            memberCard.getCard().getAltTxt(),
                             memberCard.getCardHistoriesCollection().getTotalCost()
                     );
                 })
@@ -60,7 +61,6 @@ public class MemberCardService {
                         memberCard.getCard().getCardCorp(),
                         memberCard.getCard().getImgUrl(),
                         memberCard.getId(),
-                        memberCard.getCard().getAltTxt(),
                         memberCard.getCardHistoriesCollection().getTotalCostByMonth(startDate, endDate) // 월별 총합 계산
                 ))
                 .collect(Collectors.toList());

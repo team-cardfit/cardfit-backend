@@ -1,6 +1,5 @@
 package CardRecommendService.Classification;
 
-import CardRecommendService.cardHistory.CardHistory;
 import CardRecommendService.cardHistory.CardHistoryQueryRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -12,11 +11,9 @@ import java.util.List;
 public class ClassificationService {
 
     private final ClassificationRepository classificationRepository;
-    private final CardHistoryQueryRepository cardHistoryQueryRepository;
 
-    public ClassificationService(ClassificationRepository classificationRepository, CardHistoryQueryRepository cardHistoryQueryRepository) {
+    public ClassificationService(ClassificationRepository classificationRepository) {
         this.classificationRepository = classificationRepository;
-        this.cardHistoryQueryRepository = cardHistoryQueryRepository;
     }
 
     @Transactional

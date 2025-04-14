@@ -10,16 +10,6 @@ public class CardHistories {
         this.cardHistories = cardHistories;
     }
 
-//    public Integer getTotalCost() {
-//        int totalAmount = 0;
-//        if (cardHistories != null) {
-//            for (CardHistory cardHistory : cardHistories) {
-//                totalAmount += cardHistory.getAmount();
-//            }
-//        }
-//        return totalAmount;
-//    }
-
     public Integer getTotalCost() {
         return cardHistories.stream()
                 .map(CardHistory::getAmount)

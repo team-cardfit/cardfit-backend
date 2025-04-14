@@ -1,4 +1,4 @@
-package CardRecommendService.cardHistory;
+package CardRecommendService.cardHistory.UpdateClassificationDto;
 
 import java.util.List;
 
