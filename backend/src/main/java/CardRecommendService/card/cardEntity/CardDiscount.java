@@ -1,4 +1,4 @@
-package CardRecommendService.card;
+package CardRecommendService.card.cardEntity;
 
 import jakarta.persistence.*;
 

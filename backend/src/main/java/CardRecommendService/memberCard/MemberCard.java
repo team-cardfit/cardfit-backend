@@ -2,7 +2,7 @@ package CardRecommendService.memberCard;
 
 import CardRecommendService.cardHistory.CardHistories;
 import CardRecommendService.cardHistory.CardHistory;
-import CardRecommendService.card.Card;
+import CardRecommendService.card.cardEntity.Card;
 import jakarta.persistence.*;
 
 import java.util.List;

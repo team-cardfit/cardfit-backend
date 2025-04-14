@@ -1,5 +1,6 @@
 package CardRecommendService.card;
 
+import CardRecommendService.card.cardEntity.Card;
 import CardRecommendService.card.cardResponse.CardDetailResponse;
 import CardRecommendService.card.cardResponse.CardResponse;
 import CardRecommendService.cardHistory.CardHistoryQueryRepository;

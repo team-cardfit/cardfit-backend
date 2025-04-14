@@ -1,7 +1,7 @@
 package CardRecommendService.card.cardResponse;
 
-import CardRecommendService.card.CardCategory;
-import CardRecommendService.card.CardDiscount;
+import CardRecommendService.card.cardEntity.CardCategory;
+import CardRecommendService.card.cardEntity.CardDiscount;
 
 import java.util.List;
 

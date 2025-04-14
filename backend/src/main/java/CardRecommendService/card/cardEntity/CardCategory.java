@@ -1,5 +1,6 @@
-package CardRecommendService.card;
+package CardRecommendService.card.cardEntity;
 
+import CardRecommendService.card.Category;
 import jakarta.persistence.*;
 
 @Entity
