@@ -36,23 +36,6 @@ public class CardService {
                 .collect(Collectors.toList());
     }
 
-    // 회원 보유 카드 기반 추천 – 동적 쿼리로 기본 top 카테고리 추출
-    public List<CardDetailResponse> getRecommendedCardsInfo(String uuid, List<Long> selectedCardIds,
-                                                            int minAnnualFee, int maxAnnualFee, int monthOffset) {
-        // 사용자가 소유한 카드 목록(연관된 Card의 id)을 검증
-        List<Long> userMemberCardIds = memberCardRepository.findByUuid(uuid)
-                .stream()
-                .filter(memberCard -> selectedCardIds.contains(memberCard.getId()))
-                .map(memberCard -> memberCard.getId())
-                .toList();
-
-        if (userMemberCardIds.isEmpty()) {
-            throw new IllegalArgumentException("사용자의 카드 정보가 없습니다.");
-        }
-        Set<Category> categories = queryRepository.getTop5CategoriesList(userMemberCardIds, monthOffset);
-        return getRecommendedCardsInfoInternal(userMemberCardIds, categories, minAnnualFee, maxAnnualFee);
-    }
-
     // 회원 보유 카드 + 외부 제공 카테고리 기반 추천 (동적 쿼리 포함)
     public List<CardDetailResponse> getRecommendedCardsInfo(String uuid, List<Long> selectedCardIds,
                                                             List<Category> providedCategories,
@@ -83,7 +66,7 @@ public class CardService {
                 .collect(Collectors.toList());
         List<Card> topCards = cardRepository.findAllById(topCardIds);
         return topCards.stream()
-                .map(this::mapToCardDetailResponse)
+                .map(Card::toDetailResponse)
                 .collect(Collectors.toList());
     }
 
@@ -96,17 +79,5 @@ public class CardService {
                                 .filter(cc -> categories.contains(cc.getCategory()))
                                 .count()
                 ));
-    }
-
-    //응답 객체에 카드의 카테고리 리스트와 할인 리스트를 전달
-    private CardDetailResponse mapToCardDetailResponse(Card card) {
-        return new CardDetailResponse(
-                card.getCardName(),
-                card.getCardCorp(),
-                card.getImgUrl(),
-                card.getAnnualFee(),
-                card.getCardCategories(),
-                card.getCardDiscounts()
-        );
     }
 }

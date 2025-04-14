@@ -1,5 +1,6 @@
 package CardRecommendService.card.cardEntity;
 
+import CardRecommendService.card.cardResponse.CardDetailResponse;
 import CardRecommendService.memberCard.MemberCard;
 import jakarta.persistence.*;
 
@@ -47,6 +48,7 @@ public class Card {
         this.cardDiscounts = cardDiscounts;
     }
 
+
     public Long getId() {
         return id;
     }
@@ -77,6 +79,17 @@ public class Card {
 
     public List<CardDiscount> getCardDiscounts() {
         return cardDiscounts;
+    }
+
+    public CardDetailResponse toDetailResponse() {
+        return new CardDetailResponse(
+                this.cardName,
+                this.cardCorp,
+                this.imgUrl,
+                this.annualFee,
+                this.cardCategories,
+                this.cardDiscounts
+        );
     }
 
     @Override
