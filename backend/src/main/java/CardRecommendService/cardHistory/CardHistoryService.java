@@ -2,7 +2,12 @@ package CardRecommendService.cardHistory;
 
 import CardRecommendService.Classification.Classification;
 import CardRecommendService.Classification.ClassificationRepository;
-import CardRecommendService.memberCard.MemberCard;
+import CardRecommendService.cardHistory.UpdateClassificationDto.UpdateClassificationRequest;
+import CardRecommendService.cardHistory.UpdateClassificationDto.UpdateClassificationResponse;
+import CardRecommendService.cardHistory.cardHistoryResponse.CardHistoryResponse;
+import CardRecommendService.cardHistory.cardHistoryResponse.CardHistorySelectedResponse;
+import CardRecommendService.cardHistory.cardHistoryResponse.CardHistorySelectedResponseWithPercentResponse;
+import CardRecommendService.cardHistory.cardHistoryResponse.SetCardHistoriesResponse;
 import CardRecommendService.memberCard.MemberCardRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -11,7 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service

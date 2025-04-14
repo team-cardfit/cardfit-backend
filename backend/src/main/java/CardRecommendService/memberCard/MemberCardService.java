@@ -4,6 +4,7 @@ package CardRecommendService.memberCard;
 import CardRecommendService.card.cardResponse.CardBasicInfoResponse;
 import CardRecommendService.cardHistory.*;
 
+import CardRecommendService.cardHistory.cardHistoryResponse.CardHistoryResponse;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;

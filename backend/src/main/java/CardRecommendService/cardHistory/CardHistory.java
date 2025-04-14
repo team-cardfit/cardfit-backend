@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Entity
 public class CardHistory {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

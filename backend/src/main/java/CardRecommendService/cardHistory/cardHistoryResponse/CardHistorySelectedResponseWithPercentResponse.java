@@ -1,4 +1,4 @@
-package CardRecommendService.cardHistory;
+package CardRecommendService.cardHistory.cardHistoryResponse;
 
 import java.time.LocalDate;
 import java.util.List;
