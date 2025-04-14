@@ -1,8 +1,6 @@
 package CardRecommendService.memberCard;
 
-
-import CardRecommendService.card.CardBasicInfoResponse;
-
+import CardRecommendService.card.cardResponse.CardBasicInfoResponse;
 import CardRecommendService.loginUtils.CurrentUserId;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,8 +11,7 @@ import java.util.stream.Collectors;
 @RestController
 public class MemberCardController {
 
-
-    private MemberCardService memberCardService;
+    private final MemberCardService memberCardService;
 
     public MemberCardController(MemberCardService memberCardService) {
         this.memberCardService = memberCardService;
@@ -55,6 +52,3 @@ public class MemberCardController {
         return memberCardService.getCardsHistories(uuid, memberCardIds, monthOffset, page, size);
     }
 }
-
-//        Month convertedMonth = Month.of(month); // int를 Month로 변환
-//        Pageable pageable = PageRequest.of(page - 1, size);

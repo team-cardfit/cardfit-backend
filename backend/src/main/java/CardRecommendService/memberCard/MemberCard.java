@@ -27,23 +27,6 @@ public class MemberCard {
     protected MemberCard() {
     }
 
-    public MemberCard(String cardNumber, Card card, List<CardHistory> cardHistories, String uuid) {
-        this.cardNumber = cardNumber;
-        this.card = card;
-        this.cardHistories = cardHistories;
-        this.uuid = uuid;
-    }
-
-    public MemberCard(String cardNumber, Card card, String uuid) {
-        this.cardNumber = cardNumber;
-        this.card = card;
-        this.uuid = uuid;
-    }
-
-    public MemberCard(Long id) {
-        this.id = id;
-    }
-
     public Long getId() {
         return id;
     }
