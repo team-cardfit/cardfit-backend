@@ -4,9 +4,9 @@ import CardRecommendService.card.cardResponse.CardDetailResponse;
 import CardRecommendService.memberCard.MemberCard;
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 public class Card {
@@ -30,15 +30,16 @@ public class Card {
     @OneToMany(mappedBy = "card")
     private List<MemberCard> memberCards;
 
-    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CardCategory> cardCategories = new ArrayList<>();
+    // List 대신 Set으로 변경 (중복 제거 효과)
+    @OneToMany(mappedBy = "card")
+    private Set<CardCategory> cardCategories;
 
-    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CardDiscount> cardDiscounts = new ArrayList<>();
+    @OneToMany(mappedBy = "card")
+    private List<CardDiscount> cardDiscounts;
 
     protected Card() { }
 
-    public Card(String cardName, String cardCorp, String imgUrl, int annualFee, List<MemberCard> memberCards, List<CardCategory> cardCategories, List<CardDiscount> cardDiscounts) {
+    public Card(String cardName, String cardCorp, String imgUrl, int annualFee, List<MemberCard> memberCards, Set<CardCategory> cardCategories, List<CardDiscount> cardDiscounts) {
         this.cardName = cardName;
         this.cardCorp = cardCorp;
         this.imgUrl = imgUrl;
@@ -47,7 +48,6 @@ public class Card {
         this.cardCategories = cardCategories;
         this.cardDiscounts = cardDiscounts;
     }
-
 
     public Long getId() {
         return id;
@@ -73,7 +73,7 @@ public class Card {
         return memberCards;
     }
 
-    public List<CardCategory> getCardCategories() {
+    public Set<CardCategory> getCardCategories() {
         return cardCategories;
     }
 

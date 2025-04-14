@@ -4,12 +4,13 @@ import CardRecommendService.card.cardEntity.CardCategory;
 import CardRecommendService.card.cardEntity.CardDiscount;
 
 import java.util.List;
+import java.util.Set;
 
 public record CardDetailResponse(
         String cardName,
         String cardCorp,
         String imgUrl,
         int annualFee,
-        List<CardCategory> cardCategories,
+        Set<CardCategory> cardCategories,
         List<CardDiscount> cardDiscounts) {
 }

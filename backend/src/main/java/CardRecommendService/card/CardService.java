@@ -40,6 +40,7 @@ public class CardService {
     public List<CardDetailResponse> getRecommendedCardsInfo(String uuid, List<Long> selectedCardIds,
                                                             List<Category> providedCategories,
                                                             int minAnnualFee, int maxAnnualFee, int monthOffset) {
+
         List<Long> userMemberCardIds = memberCardRepository.findByUuid(uuid)
                 .stream()
                 .filter(memberCard -> selectedCardIds.contains(memberCard.getId()))
@@ -49,35 +50,42 @@ public class CardService {
         if (userMemberCardIds.isEmpty()) {
             throw new IllegalArgumentException("사용자의 카드 정보가 없습니다.");
         }
-        Set<Category> categories = (providedCategories == null || providedCategories.isEmpty())
-                ? queryRepository.getTop5CategoriesList(userMemberCardIds, monthOffset)
-                : new HashSet<>(providedCategories);
-        return getRecommendedCardsInfoInternal(userMemberCardIds, categories, minAnnualFee, maxAnnualFee);
-    }
 
-    private List<CardDetailResponse> getRecommendedCardsInfoInternal(List<Long> validCardIds,
-                                                                     Set<Category> categories,
-                                                                     int minAnnualFee, int maxAnnualFee) {
-        Map<Long, Integer> cardMatchCounts = getCardMatchCounts(categories, minAnnualFee, maxAnnualFee);
-        List<Long> topCardIds = cardMatchCounts.entrySet().stream()
-                .sorted(Map.Entry.<Long, Integer>comparingByValue().reversed())
-                .limit(3)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-        List<Card> topCards = cardRepository.findAllById(topCardIds);
-        return topCards.stream()
-                .map(Card::toDetailResponse)
-                .collect(Collectors.toList());
-    }
+        Set<Category> categories;
+        if (providedCategories == null || providedCategories.isEmpty())
+            categories = queryRepository.getTop5CategoriesList(userMemberCardIds, monthOffset);
+        else categories = new HashSet<>(providedCategories);
 
-    //카드의 cardCategories 리스트를 순회하여, 일치하는 카테고리 개수를 세도록 변경
-    private Map<Long, Integer> getCardMatchCounts(Set<Category> categories, int minAnnualFee, int maxAnnualFee) {
-        List<Card> cards = qCardRepository.findCardsMatchingTopCategoriesAndAnnualFee(categories, minAnnualFee, maxAnnualFee);
-        return cards.stream()
-                .collect(Collectors.toMap(Card::getId,
-                        card -> (int) card.getCardCategories().stream()
-                                .filter(cc -> categories.contains(cc.getCategory()))
-                                .count()
-                ));
+        // 후보 카드 조회 (QCardRepository를 통해 minAnnualFee, maxAnnualFee 조건 적용)
+        List<Card> candidateCards = qCardRepository.findCardsMatchingTopCategoriesAndAnnualFee(categories, minAnnualFee, maxAnnualFee);
+
+        CardRecommendationEvaluator cardRecommendationEvaluator1 = new CardRecommendationEvaluator(candidateCards, categories);
+
+        return cardRecommendationEvaluator1.getRecommendedCardsInfoInternal();
     }
 }
+
+//    private List<CardDetailResponse> getRecommendedCardsInfoInternal(List<Long> userMemberCardIds,
+//                                                                     Set<Category> categories,
+//                                                                     int minAnnualFee, int maxAnnualFee) {
+//        Map<Long, Integer> cardMatchCounts = getCardMatchCounts(categories, minAnnualFee, maxAnnualFee);
+//        List<Long> topCardIds = cardMatchCounts.entrySet().stream()
+//                .sorted(Map.Entry.<Long, Integer>comparingByValue().reversed())
+//                .limit(3)
+//                .map(Map.Entry::getKey)
+//                .collect(Collectors.toList());
+//        List<Card> topCards = cardRepository.findAllById(topCardIds);
+//        return topCards.stream()
+//                .map(Card::toDetailResponse)
+//                .collect(Collectors.toList());
+//    }
+
+//카드의 cardCategories 리스트를 순회하여, 일치하는 카테고리 개수를 세도록 변경
+//    private Map<Long, Integer> getCardMatchCounts(Set<Category> categories, int minAnnualFee, int maxAnnualFee) {
+//        List<Card> cards = qCardRepository.findCardsMatchingTopCategoriesAndAnnualFee(categories, minAnnualFee, maxAnnualFee);
+//        return cards.stream()
+//                .collect(Collectors.toMap(Card::getId,
+//                        card -> (int) card.getCardCategories().stream()
+//                                .filter(cc -> categories.contains(cc.getCategory()))
+//                                .count()
+//                ));
