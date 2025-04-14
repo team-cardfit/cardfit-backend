@@ -27,6 +27,10 @@ public class MemberCard {
     protected MemberCard() {
     }
 
+    public MemberCard(String cardNumber) {
+        this.cardNumber = cardNumber;
+    }
+
     public Long getId() {
         return id;
     }
