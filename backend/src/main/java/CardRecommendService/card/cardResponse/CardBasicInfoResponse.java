@@ -1,4 +1,4 @@
-package CardRecommendService.card;
+package CardRecommendService.card.cardResponse;
 
 public record CardBasicInfoResponse(
         Long id,
@@ -6,6 +6,5 @@ public record CardBasicInfoResponse(
         String cardCorp,
         String cardImg,
         Long memberCardId,
-        String altTxt,
         Integer cardTotalAmount) {
 }

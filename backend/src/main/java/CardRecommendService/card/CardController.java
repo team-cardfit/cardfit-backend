@@ -1,11 +1,12 @@
 package CardRecommendService.card;
 
+import CardRecommendService.card.cardResponse.CardDetailResponse;
+import CardRecommendService.card.cardResponse.CardResponse;
 import CardRecommendService.cardHistory.Category;
 import CardRecommendService.loginUtils.CurrentUserId;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/cards")
@@ -22,23 +23,6 @@ public class CardController {
     public List<CardResponse> getAllCards() {
         return cardService.getAllCards();
     }
-
-//    // 카드 상세 조회 (해당 카드가 현재 사용자 소유인지 확인)
-//    @GetMapping("/{cardId}")
-//    public CardDetailResponse getCardDetail(@CurrentUserId String uuid,
-//                                            @PathVariable Long cardId) {
-//        return cardService.getCardDetailByCardId(uuid, cardId);
-//    }
-//
-//    // 선택된 카테고리 기반 카드 추천
-//    @GetMapping("/recommend")
-//    public CardRecommendResponse recommendCards(
-//            @CurrentUserId String uuid,
-//            @RequestParam(defaultValue = "0") int minAnnualFee,
-//            @RequestParam(defaultValue = "500000") int maxAnnualFee,
-//            @RequestParam Set<Category> storeCategories) {
-//        return cardService.getRecommendCards(uuid, storeCategories, minAnnualFee, maxAnnualFee);
-//    }
 
     // 회원 보유 카드 기반 추천 (동적 쿼리: 기본 카테고리 추출)
     @GetMapping("/recommendation")
