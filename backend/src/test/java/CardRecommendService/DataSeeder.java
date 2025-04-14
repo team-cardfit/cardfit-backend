@@ -25,7 +25,7 @@
 //        this.cardHistoryRepository = cardHistoryRepository;
 //        this.memberCardRepository = memberCardRepository;
 //    }
-//
+
 //    @Transactional
 //    public void initData() {
 //

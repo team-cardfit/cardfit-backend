@@ -39,31 +39,6 @@ public class CardHistory {
     protected CardHistory() {
     }
 
-    public CardHistory(String storeName, int amount, LocalDateTime paymentDatetime, Category category, MemberCard memberCard) {
-        this.storeName = storeName;
-        this.amount = amount;
-        this.paymentDatetime = paymentDatetime;
-        this.category = category;
-        this.memberCard = memberCard;
-    }
-
-    public CardHistory(int amount, String storeName, LocalDateTime paymentDatetime, Category category, String uuid) {
-        this.amount = amount;
-        this.storeName = storeName;
-        this.paymentDatetime = paymentDatetime;
-        this.category = category;
-        this.uuid = uuid;
-    }
-
-    public CardHistory(int amount, String storeName, LocalDateTime paymentDatetime, Category category, MemberCard memberCard, String uuid) {
-        this.amount = amount;
-        this.storeName = storeName;
-        this.paymentDatetime = paymentDatetime;
-        this.category = category;
-        this.memberCard = memberCard;
-        this.uuid = uuid;
-    }
-
     public CardHistory(int amount, String storeName, LocalDateTime paymentDatetime, Category category, MemberCard memberCard, String uuid, Classification classification) {
         this.amount = amount;
         this.storeName = storeName;
@@ -109,4 +84,7 @@ public class CardHistory {
     public void setClassification(Classification classification) {
         this.classification = classification;
     }
+
+
+
 }
