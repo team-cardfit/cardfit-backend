@@ -1,17 +1,15 @@
 package CardRecommendService.card.cardResponse;
 
-import CardRecommendService.cardHistory.Category;
+import CardRecommendService.card.CardCategory;
+import CardRecommendService.card.CardDiscount;
+
+import java.util.List;
 
 public record CardDetailResponse(
         String cardName,
         String cardCorp,
         String imgUrl,
         int annualFee,
-        Category store1,
-        String discount1,
-        Category store2,
-        String discount2,
-        Category store3,
-        String discount3
-) {
+        List<CardCategory> cardCategories,
+        List<CardDiscount> cardDiscounts) {
 }

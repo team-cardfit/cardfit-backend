@@ -2,7 +2,6 @@ package CardRecommendService.card;
 
 import CardRecommendService.card.cardResponse.CardDetailResponse;
 import CardRecommendService.card.cardResponse.CardResponse;
-import CardRecommendService.cardHistory.Category;
 import CardRecommendService.loginUtils.CurrentUserId;
 import org.springframework.web.bind.annotation.*;
 

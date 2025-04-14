@@ -2,6 +2,7 @@ package CardRecommendService.cardHistory;
 
 
 import CardRecommendService.Classification.Classification;
+import CardRecommendService.card.Category;
 import CardRecommendService.memberCard.MemberCard;
 import jakarta.persistence.*;
 

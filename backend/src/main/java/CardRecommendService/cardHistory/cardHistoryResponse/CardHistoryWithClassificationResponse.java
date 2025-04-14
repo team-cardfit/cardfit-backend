@@ -1,7 +1,7 @@
 package CardRecommendService.cardHistory.cardHistoryResponse;
 
 import CardRecommendService.cardHistory.CardHistory;
-import CardRecommendService.cardHistory.Category;
+import CardRecommendService.card.Category;
 
 import java.time.LocalDateTime;
 

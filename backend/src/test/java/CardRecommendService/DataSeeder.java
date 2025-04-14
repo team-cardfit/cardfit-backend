@@ -4,7 +4,7 @@
 //import CardRecommendService.card.CardRepository;
 //import CardRecommendService.cardHistory.CardHistory;
 //import CardRecommendService.cardHistory.CardHistoryRepository;
-//import CardRecommendService.cardHistory.Category;
+//import CardRecommendService.card.Category;
 //import CardRecommendService.memberCard.MemberCard;
 //import CardRecommendService.memberCard.MemberCardRepository;
 //import jakarta.transaction.Transactional;

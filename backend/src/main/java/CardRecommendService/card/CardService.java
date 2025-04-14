@@ -3,14 +3,12 @@ package CardRecommendService.card;
 import CardRecommendService.card.cardResponse.CardDetailResponse;
 import CardRecommendService.card.cardResponse.CardResponse;
 import CardRecommendService.cardHistory.CardHistoryQueryRepository;
-import CardRecommendService.cardHistory.Category;
 import CardRecommendService.memberCard.MemberCardRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class CardService {
@@ -47,15 +45,15 @@ public class CardService {
                 .map(memberCard -> memberCard.getId())
                 .toList();
 
-        if (selectedCardIds.isEmpty()) {
+        if (userMemberCardIds.isEmpty()) {
             throw new IllegalArgumentException("사용자의 카드 정보가 없습니다.");
         }
         Set<Category> categories = queryRepository.getTop5CategoriesList(userMemberCardIds, monthOffset);
         return getRecommendedCardsInfoInternal(userMemberCardIds, categories, minAnnualFee, maxAnnualFee);
     }
 
-    // 회원 보유 카드 + 외부 제공 카테고리 기반 추천
-    public List<CardDetailResponse> getRecommendedCardsInfo(String uuid,List<Long> selectedCardIds,
+    // 회원 보유 카드 + 외부 제공 카테고리 기반 추천 (동적 쿼리 포함)
+    public List<CardDetailResponse> getRecommendedCardsInfo(String uuid, List<Long> selectedCardIds,
                                                             List<Category> providedCategories,
                                                             int minAnnualFee, int maxAnnualFee, int monthOffset) {
         List<Long> userMemberCardIds = memberCardRepository.findByUuid(uuid)
@@ -75,8 +73,7 @@ public class CardService {
 
     private List<CardDetailResponse> getRecommendedCardsInfoInternal(List<Long> validCardIds,
                                                                      Set<Category> categories,
-                                                                     int minAnnualFee,
-                                                                     int maxAnnualFee) {
+                                                                     int minAnnualFee, int maxAnnualFee) {
         Map<Long, Integer> cardMatchCounts = getCardMatchCounts(categories, minAnnualFee, maxAnnualFee);
         List<Long> topCardIds = cardMatchCounts.entrySet().stream()
                 .sorted(Map.Entry.<Long, Integer>comparingByValue().reversed())
@@ -89,38 +86,26 @@ public class CardService {
                 .collect(Collectors.toList());
     }
 
+    //카드의 cardCategories 리스트를 순회하여, 일치하는 카테고리 개수를 세도록 변경
     private Map<Long, Integer> getCardMatchCounts(Set<Category> categories, int minAnnualFee, int maxAnnualFee) {
         List<Card> cards = qCardRepository.findCardsMatchingTopCategoriesAndAnnualFee(categories, minAnnualFee, maxAnnualFee);
         return cards.stream()
                 .collect(Collectors.toMap(Card::getId,
-                        card -> {
-                            int matchCount = 0;
-                            if (categories.contains(card.getStore1())) matchCount++;
-                            if (categories.contains(card.getStore2())) matchCount++;
-                            if (categories.contains(card.getStore3())) matchCount++;
-                            return matchCount;
-                        }));
+                        card -> (int) card.getCardCategories().stream()
+                                .filter(cc -> categories.contains(cc.getCategory()))
+                                .count()
+                ));
     }
 
-    private int countMatchedCategories(Card card, Set<Category> selectedCategories) {
-        return (int) Stream.of(card.getStore1(), card.getStore2(), card.getStore3())
-                .filter(Objects::nonNull)
-                .filter(selectedCategories::contains)
-                .count();
-    }
-
+    //응답 객체에 카드의 카테고리 리스트와 할인 리스트를 전달
     private CardDetailResponse mapToCardDetailResponse(Card card) {
         return new CardDetailResponse(
                 card.getCardName(),
                 card.getCardCorp(),
                 card.getImgUrl(),
                 card.getAnnualFee(),
-                card.getStore1(),
-                card.getDiscount1(),
-                card.getStore2(),
-                card.getDiscount2(),
-                card.getStore3(),
-                card.getDiscount3()
+                card.getCardCategories(),
+                card.getCardDiscounts()
         );
     }
 }

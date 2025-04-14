@@ -1,9 +1,9 @@
 package CardRecommendService.card;
 
-import CardRecommendService.cardHistory.Category;
 import CardRecommendService.memberCard.MemberCard;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,7 +12,7 @@ public class Card {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @Column(nullable = false)
     private String cardName;  // 카드 이름
@@ -29,43 +29,26 @@ public class Card {
     @OneToMany(mappedBy = "card")
     private List<MemberCard> memberCards;
 
-    @Enumerated(EnumType.STRING)
-    private Category store1;
+    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CardCategory> cardCategories = new ArrayList<>();
 
-    @Enumerated(EnumType.STRING)
-    private Category store2;
+    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CardDiscount> cardDiscounts = new ArrayList<>();
 
-    @Enumerated(EnumType.STRING)
-    private Category store3;
+    protected Card() { }
 
-    private String discount1;
-
-    private String discount2;
-
-    private String discount3;
-
-    protected Card() {
-    }
-
-    public Card(
-            String cardName,
-            String cardCorp,
-            String imgUrl,
-            int annualFee,
-            Category store1,
-            Category store2,
-            Category store3) {
+    public Card(String cardName, String cardCorp, String imgUrl, int annualFee, List<MemberCard> memberCards, List<CardCategory> cardCategories, List<CardDiscount> cardDiscounts) {
         this.cardName = cardName;
         this.cardCorp = cardCorp;
         this.imgUrl = imgUrl;
         this.annualFee = annualFee;
-        this.store1 = store1;
-        this.store2 = store2;
-        this.store3 = store3;
+        this.memberCards = memberCards;
+        this.cardCategories = cardCategories;
+        this.cardDiscounts = cardDiscounts;
     }
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public String getCardName() {
@@ -88,58 +71,39 @@ public class Card {
         return memberCards;
     }
 
-    public Category getStore1() {
-        return store1;
+    public List<CardCategory> getCardCategories() {
+        return cardCategories;
     }
 
-    public Category getStore2() {
-        return store2;
-    }
-
-    public Category getStore3() {
-        return store3;
-    }
-
-    public String getDiscount1() {
-        return discount1;
-    }
-
-    public String getDiscount2() {
-        return discount2;
-    }
-
-    public String getDiscount3() {
-        return discount3;
+    public List<CardDiscount> getCardDiscounts() {
+        return cardDiscounts;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Card)) return false;
         Card card = (Card) o;
-        return annualFee == card.annualFee && Objects.equals(Id, card.Id) && Objects.equals(cardName, card.cardName) && Objects.equals(cardCorp, card.cardCorp) && Objects.equals(imgUrl, card.imgUrl) && Objects.equals(memberCards, card.memberCards) && store1 == card.store1 && store2 == card.store2 && store3 == card.store3 && Objects.equals(discount1, card.discount1) && Objects.equals(discount2, card.discount2) && Objects.equals(discount3, card.discount3);
+        return annualFee == card.annualFee &&
+                Objects.equals(id, card.id) &&
+                Objects.equals(cardName, card.cardName) &&
+                Objects.equals(cardCorp, card.cardCorp) &&
+                Objects.equals(imgUrl, card.imgUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(Id, cardName, cardCorp, imgUrl, annualFee, memberCards, store1, store2, store3, discount1, discount2, discount3);
+        return Objects.hash(id, cardName, cardCorp, imgUrl, annualFee);
     }
 
     @Override
     public String toString() {
         return "Card{" +
-                "Id=" + Id +
+                "id=" + id +
                 ", cardName='" + cardName + '\'' +
                 ", cardCorp='" + cardCorp + '\'' +
                 ", imgUrl='" + imgUrl + '\'' +
                 ", annualFee=" + annualFee +
-                ", memberCards=" + memberCards +
-                ", store1=" + store1 +
-                ", store2=" + store2 +
-                ", store3=" + store3 +
-                ", discount1='" + discount1 + '\'' +
-                ", discount2='" + discount2 + '\'' +
-                ", discount3='" + discount3 + '\'' +
                 '}';
     }
 }
