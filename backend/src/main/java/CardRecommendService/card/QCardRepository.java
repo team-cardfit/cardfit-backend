@@ -1,6 +1,8 @@
 package CardRecommendService.card;
 
 import CardRecommendService.card.cardEntity.Card;
+import CardRecommendService.card.cardEntity.QCard;
+import CardRecommendService.card.cardEntity.QCardCategoryDiscountMapping;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
@@ -28,11 +30,11 @@ public class QCardRepository {
                     .where(getCardsAnnualFee(minAnnualFee, maxAnnualFee))
                     .fetch();
         } else {
-            QCardCategory qCardCategory = QCardCategory.cardCategory;
+            QCardCategoryDiscountMapping qCardCategory = QCardCategoryDiscountMapping.cardCategoryDiscountMapping;
             return queryFactory
                     .selectDistinct(qCard)
                     .from(qCard)
-                    .join(qCard.cardCategories, qCardCategory)
+                    .join(qCard.categoryDiscountMappings, qCardCategory)
                     .where(getCardsAnnualFee(minAnnualFee, maxAnnualFee)
                             .and(qCardCategory.category.in(topCategories)))
                     .fetch();

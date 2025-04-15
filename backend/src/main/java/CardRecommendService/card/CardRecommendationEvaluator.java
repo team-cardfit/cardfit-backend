@@ -2,8 +2,10 @@ package CardRecommendService.card;
 
 import CardRecommendService.card.cardEntity.Card;
 import CardRecommendService.card.cardResponse.CardDetailResponse;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,24 +35,26 @@ public class CardRecommendationEvaluator {
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
 
-        // 후보 카드 목록(cards) 중 topCardIds에 해당하는 카드들을 필터링합니다.
-        List<Card> topCards = cards.stream()
-                .filter(card -> topCardIds.contains(card.getId()))
+
+        // topCardIds 순서대로 각 카드 ID에 해당하는 카드를 찾아서 순서를 보존합니다.
+        List<Card> topCards = topCardIds.stream()
+                .map(id -> cards.stream()
+                        .filter(card -> card.getId().equals(id)).findFirst().orElse(null))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         // 상위 추천 카드들을 DTO로 변환하여 반환합니다.
         return topCards.stream()
-                .map(Card::toDetailResponse)
+                .map(card -> card.toDetailResponse())
                 .collect(Collectors.toList());
     }
-
 
     //각 카드에 대해 cardCategories 컬렉션을 순회하여,
     //기준 categories 집합에 포함되는 카드 카테고리 개수를 계산합니다.
     private Map<Long, Integer> getCardMatchCounts() {
         return cards.stream()
                 .collect(Collectors.toMap(Card::getId,
-                        card -> (int) card.getCardCategories().stream()
+                        card -> (int) card.getCategoryDiscountMappings().stream()
                                 .filter(cardCategory -> categories.contains(cardCategory.getCategory()))
                                 .count()));
     }

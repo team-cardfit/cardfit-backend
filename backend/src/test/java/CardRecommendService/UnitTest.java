@@ -1,8 +1,8 @@
 package CardRecommendService;
 
 import CardRecommendService.Classification.Classification;
+import CardRecommendService.card.Category;
 import CardRecommendService.cardHistory.CardHistory;
-import CardRecommendService.cardHistory.Category;
 import CardRecommendService.memberCard.MemberCard;
 import org.junit.jupiter.api.Test;
 

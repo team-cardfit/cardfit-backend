@@ -64,28 +64,3 @@ public class CardService {
         return cardRecommendationEvaluator1.getRecommendedCardsInfoInternal();
     }
 }
-
-//    private List<CardDetailResponse> getRecommendedCardsInfoInternal(List<Long> userMemberCardIds,
-//                                                                     Set<Category> categories,
-//                                                                     int minAnnualFee, int maxAnnualFee) {
-//        Map<Long, Integer> cardMatchCounts = getCardMatchCounts(categories, minAnnualFee, maxAnnualFee);
-//        List<Long> topCardIds = cardMatchCounts.entrySet().stream()
-//                .sorted(Map.Entry.<Long, Integer>comparingByValue().reversed())
-//                .limit(3)
-//                .map(Map.Entry::getKey)
-//                .collect(Collectors.toList());
-//        List<Card> topCards = cardRepository.findAllById(topCardIds);
-//        return topCards.stream()
-//                .map(Card::toDetailResponse)
-//                .collect(Collectors.toList());
-//    }
-
-//카드의 cardCategories 리스트를 순회하여, 일치하는 카테고리 개수를 세도록 변경
-//    private Map<Long, Integer> getCardMatchCounts(Set<Category> categories, int minAnnualFee, int maxAnnualFee) {
-//        List<Card> cards = qCardRepository.findCardsMatchingTopCategoriesAndAnnualFee(categories, minAnnualFee, maxAnnualFee);
-//        return cards.stream()
-//                .collect(Collectors.toMap(Card::getId,
-//                        card -> (int) card.getCardCategories().stream()
-//                                .filter(cc -> categories.contains(cc.getCategory()))
-//                                .count()
-//                ));
