@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/cards")
 public class CardController {
 
     private final CardService cardService;
@@ -18,13 +17,13 @@ public class CardController {
     }
 
     // 모든 카드 목록 조회
-    @GetMapping
+    @GetMapping("/cards")
     public List<CardResponse> getAllCards() {
         return cardService.getAllCards();
     }
 
     // 회원 보유 카드 + 외부 제공 카테고리 기반 추천 (동적 쿼리 포함)
-    @GetMapping("/recommendations")
+    @GetMapping("/cards/recommendations")
     public List<CardDetailResponse> recommendByCategoriesAndAmount(
             @CurrentUserId String uuid,
             @RequestParam List<Long> selectedCardIds,
