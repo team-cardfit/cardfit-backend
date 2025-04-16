@@ -28,7 +28,8 @@ public class Card {
     @OneToMany(mappedBy = "card")
     private List<MemberCard> memberCards;
 
-    @OneToMany(mappedBy = "card")
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "card_id")
     @OrderColumn(name = "sequence")
     private List<CardCategoryDiscountMapping> categoryDiscountMappings;
 

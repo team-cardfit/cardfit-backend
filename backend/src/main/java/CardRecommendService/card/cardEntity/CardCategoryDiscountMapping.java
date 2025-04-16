@@ -10,10 +10,6 @@ public class CardCategoryDiscountMapping {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "card_id")
-    private Card card;
-
     @Enumerated(EnumType.STRING)
     private Category category;
 
@@ -25,8 +21,8 @@ public class CardCategoryDiscountMapping {
     public CardCategoryDiscountMapping() {
     }
 
-    public CardCategoryDiscountMapping(Card card, Category category, String discount, Integer sequence) {
-        this.card = card;
+    // 만약 Card 정보를 사용해야 한다면, 카드의 아이디만 별도로 받을 수 있도록 생성자를 수정할 수도 있습니다.
+    public CardCategoryDiscountMapping(Category category, String discount, Integer sequence) {
         this.category = category;
         this.discount = discount;
         this.sequence = sequence;
@@ -34,10 +30,6 @@ public class CardCategoryDiscountMapping {
 
     public Long getId() {
         return id;
-    }
-
-    public Card getCard() {
-        return card;
     }
 
     public Category getCategory() {
