@@ -2,12 +2,10 @@ package CardRecommendService.cardHistory;
 
 import CardRecommendService.Classification.Classification;
 import CardRecommendService.Classification.ClassificationRepository;
+import CardRecommendService.card.Category;
 import CardRecommendService.cardHistory.UpdateClassificationDto.UpdateClassificationRequest;
 import CardRecommendService.cardHistory.UpdateClassificationDto.UpdateClassificationResponse;
-import CardRecommendService.cardHistory.cardHistoryResponse.CardHistoryResponse;
-import CardRecommendService.cardHistory.cardHistoryResponse.CardHistorySelectedResponse;
-import CardRecommendService.cardHistory.cardHistoryResponse.CardHistorySelectedResponseWithPercentResponse;
-import CardRecommendService.cardHistory.cardHistoryResponse.SetCardHistoriesResponse;
+import CardRecommendService.cardHistory.cardHistoryDto.*;
 import CardRecommendService.memberCard.MemberCardRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -79,6 +77,75 @@ public class CardHistoryService {
         );
 
         return new CardHistorySelectedResponse(cardHistoryResponses, startDate, endDate, memberCardsTotalCost, page);
+    }
+
+    @Transactional
+    public List<CardHistoryResponse> createAndAutoClassifyCardHistory(String uuid, CardHistoryRequest request) {
+        // 1. 우선 미분류(분류 id=1)를 기본으로 새 결제 내역 엔티티 생성
+        Classification defaultClassification = classificationRepository.findById(1L)
+                .orElseThrow(() -> new IllegalArgumentException("미분류(1) Classification을 찾을 수 없습니다."));
+
+        CardHistory history = new CardHistory(
+                request.amount(),
+                request.storeName(),
+                request.paymentDatetime(),
+                request.category(),
+                request.memberCard(),  // MemberCard 정보가 DTO에 포함되어 있을 경우
+                uuid,
+                defaultClassification
+        );
+        // 저장 (미분류 상태로)
+        history = cardHistoryRepository.save(history);
+
+        // 2. 자동 분류 로직: 미분류인 경우에 Category 값에 따라 변경
+        Long newClassificationId = 1L;  // 기본: 미분류
+        Category category = history.getCategory();
+        switch (category) {
+            // 음식 관련 항목 → 분류 2
+            case 음식점:
+            case 배달앱:
+            case 커피제과:
+            case 슈퍼마켓:
+            case 홈쇼핑:
+            case 편의점:
+                newClassificationId = 2L;
+                break;
+            // 의류 관련 항목 → 분류 3
+            case 백화점:
+            case 아울렛:
+            case 할인점:
+                newClassificationId = 3L;
+                break;
+            // 주거 관련 항목 → 분류 4
+            case 관리비:
+            case 공과금:
+                newClassificationId = 4L;
+                break;
+            default:
+                newClassificationId = 1L; // 해당되지 않으면 그대로 미분류 유지
+                break;
+        }
+        // 미분류에서 다른 분류로 변경해야 한다면 업데이트 실행
+        if (!newClassificationId.equals(1L)) {
+            final Long targetClassificationId = newClassificationId;
+            Classification targetClassification = classificationRepository.findById(newClassificationId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 분류를 찾을 수 없습니다. classificationId: " + targetClassificationId));
+            history.setClassification(targetClassification);
+            cardHistoryRepository.save(history);
+        }
+
+        // 3. 생성된 CardHistory 데이터를 CardHistoryResponse DTO로 변환하여 List로 반환
+        // (여기서는 단일 내역만 반환하지만, 추후 확장이 필요한 경우 List로 감쌀 수 있습니다.)
+        CardHistoryResponse response = new CardHistoryResponse(
+                history.getMemberCard().getCard().getCardName(),  // 예시: 회원 카드에 연결된 카드 정보를 사용
+                history.getMemberCard().getCard().getCardCorp(),
+                history.getStoreName(),
+                history.getAmount(),
+                history.getPaymentDatetime(),
+                history.getCategory(),
+                history.getClassification().getTitle()  // 예시: Classification의 제목
+        );
+        return List.of(response);
     }
 
     // 결제 기록에 Classification 추가 (uuid 추가)

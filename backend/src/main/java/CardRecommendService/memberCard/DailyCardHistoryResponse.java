@@ -1,6 +1,6 @@
 package CardRecommendService.memberCard;
 
-import CardRecommendService.cardHistory.cardHistoryResponse.CardHistoryResponse;
+import CardRecommendService.cardHistory.cardHistoryDto.CardHistoryResponse;
 
 import java.time.LocalDate;
 import java.util.List;
