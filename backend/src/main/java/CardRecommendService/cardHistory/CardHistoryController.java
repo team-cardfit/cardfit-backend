@@ -2,9 +2,7 @@ package CardRecommendService.cardHistory;
 
 import CardRecommendService.cardHistory.UpdateClassificationDto.UpdateClassificationRequest;
 import CardRecommendService.cardHistory.UpdateClassificationDto.UpdateClassificationResponse;
-import CardRecommendService.cardHistory.cardHistoryResponse.CardHistorySelectedResponse;
-import CardRecommendService.cardHistory.cardHistoryResponse.CardHistorySelectedResponseWithPercentResponse;
-import CardRecommendService.cardHistory.cardHistoryResponse.CardHistoryWithClassificationResponse;
+import CardRecommendService.cardHistory.cardHistoryDto.*;
 import CardRecommendService.loginUtils.CurrentUserId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +40,15 @@ public class CardHistoryController {
         // uuid를 추가로 전달하여 로그인 사용자와 일치하는지 검증
         return cardHistoryService.getSelected(uuid, ids, monthOffset, pageable);
     }
+
+    // 결제 데이터를 생성하는 POST API 예시
+    @PostMapping("/cardhistories")
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<CardHistoryResponse> createCardHistory(@CurrentUserId String uuid,
+                                                       @RequestBody CardHistoryRequest cardHistoryRequest) {
+        return cardHistoryService.createAndAutoClassifyCardHistory(uuid, cardHistoryRequest);
+    }
+
 
     // 결제 기록에 Classification 추가 (로그인한 사용자 uuid 추가)
     @PatchMapping("/cardhistories/{cardHistoryId}/classification/{classificationId}")

@@ -1,4 +1,4 @@
-package CardRecommendService.cardHistory.cardHistoryResponse;
+package CardRecommendService.cardHistory.cardHistoryDto;
 
 import CardRecommendService.cardHistory.CardHistory;
 import CardRecommendService.card.Category;
