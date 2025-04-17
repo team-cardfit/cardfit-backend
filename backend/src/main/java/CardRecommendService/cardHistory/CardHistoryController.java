@@ -44,9 +44,11 @@ public class CardHistoryController {
     // 결제 데이터를 생성하는 POST API 예시
     @PostMapping("/cardhistories")
     @ResponseStatus(HttpStatus.CREATED)
-    public List<CardHistoryResponse> createCardHistory(@CurrentUserId String uuid,
-                                                       @RequestBody CardHistoryRequest cardHistoryRequest) {
-        return cardHistoryService.createAndAutoClassifyCardHistory(uuid, cardHistoryRequest);
+    public CardHistoryResponse createCardHistory(
+            @CurrentUserId String uuid,
+            @RequestBody CardHistoryRequest request
+    ) {
+        return cardHistoryService.createAndAutoClassifyCardHistory(uuid, request);
     }
 
 
