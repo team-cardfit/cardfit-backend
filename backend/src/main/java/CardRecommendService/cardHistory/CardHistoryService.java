@@ -93,8 +93,8 @@ public class CardHistoryService {
                 ));
 
         // 3) 기본 분류(미분류 = 1) 로 조회
-        Classification defaultClassification = classificationRepository.findById(1L)
-                .orElseThrow(() -> new IllegalArgumentException("미분류(1) Classification을 찾을 수 없습니다."));
+//        Classification defaultClassification = classificationRepository.findById(1L)
+//                .orElseThrow(() -> new IllegalArgumentException("미분류(1) Classification을 찾을 수 없습니다."));
 
         // 4) CardHistory 엔티티 생성 및 저장 (미분류 상태)
         CardHistory history = new CardHistory(
@@ -103,7 +103,7 @@ public class CardHistoryService {
                 req.paymentDatetime(),
                 req.category(),
                 memberCard,
-                defaultClassification
+                null
         );
         history = cardHistoryRepository.save(history);
 
