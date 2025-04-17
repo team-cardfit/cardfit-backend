@@ -103,7 +103,6 @@ public class CardHistoryService {
                 req.paymentDatetime(),
                 req.category(),
                 memberCard,
-                uuid,
                 defaultClassification
         );
         history = cardHistoryRepository.save(history);

@@ -31,8 +31,6 @@ public class CardHistory {
     @ManyToOne(fetch = FetchType.LAZY)
     private MemberCard memberCard;
 
-    private String uuid;
-
     @ManyToOne
     @JoinColumn(name = "classification_id")
     private Classification classification;
@@ -40,13 +38,12 @@ public class CardHistory {
     protected CardHistory() {
     }
 
-    public CardHistory(int amount, String storeName, LocalDateTime paymentDatetime, Category category, MemberCard memberCard, String uuid, Classification classification) {
+    public CardHistory(int amount, String storeName, LocalDateTime paymentDatetime, Category category, MemberCard memberCard, Classification classification) {
         this.amount = amount;
         this.storeName = storeName;
         this.paymentDatetime = paymentDatetime;
         this.category = category;
         this.memberCard = memberCard;
-        this.uuid = uuid;
         this.classification = classification;
     }
 
@@ -72,10 +69,6 @@ public class CardHistory {
 
     public MemberCard getMemberCard() {
         return memberCard;
-    }
-
-    public String getUuid() {
-        return uuid;
     }
 
     public Classification getClassification() {
